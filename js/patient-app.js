@@ -335,6 +335,10 @@ async function onPoseResults(results) {
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
+    if (results.image) {
+        canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+    }
+
     if (results.poseLandmarks && results.poseLandmarks.length > 0) {
         const landmarks = results.poseLandmarks;
         let analysisResult = { isCorrect: false, accuracy: 0, feedback: '', joints: {} };
