@@ -355,6 +355,116 @@ const mediva = {
             
             window.speechSynthesis.speak(utterance);
         }
+    },
+
+    runRehabDemo() {
+        const repsEl = document.getElementById('rehab-reps');
+        const placeholder = document.getElementById('rehab-cam-placeholder');
+        const video = document.getElementById('rehab-demo-video');
+        
+        if (placeholder) placeholder.style.display = 'none';
+        
+        // Setup MediaPipe camera if not already running
+        if (typeof Camera !== 'undefined' && video && !this.state.rehabCamActive) {
+            this.state.rehabCamActive = true;
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 }, audio: false })
+                    .then((stream) => {
+                        video.srcObject = stream;
+                        video.play();
+                    })
+                    .catch((err) => {
+                        console.error('Camera error:', err);
+                        if (placeholder) {
+                            placeholder.style.display = 'flex';
+                            placeholder.innerHTML = '<p class="text-sm font-medium" style="color:#ef4444;">Camera access denied for demo</p>';
+                        }
+                    });
+            }
+        }
+        
+        if (repsEl) {
+            let reps = 0;
+            repsEl.textContent = reps;
+            const interval = setInterval(() => {
+                reps++;
+                repsEl.textContent = reps;
+                if (reps >= 15) {
+                    clearInterval(interval);
+                    this.state.workflow.rehabActive = true;
+                    this.updateDashboardUI();
+                    
+                    // Show success
+                    setTimeout(() => {
+                        alert("Rehab Session Complete. Excellent form maintained!");
+                        this.nav('dashboard');
+                    }, 1000);
+                }
+            }, 1800);
+            
+            // Store interval to clear it if user leaves view
+            this.state.rehabInterval = interval;
+        }
+    },
+
+    runAnalysis() {
+        // Implement Multimodal AI Sensor Fusion UI sequence
+        const btn = document.getElementById('btn-start-analysis');
+        if (btn) btn.disabled = true;
+        
+        const logs = document.getElementById('ai-logs');
+        if (logs) logs.innerHTML = '';
+        
+        const steps = [
+            { text: "Initializing AI models...", time: 500, node: 'node-init' },
+            { text: "Extracting camera kinematics (MediaPipe Pose)...", time: 1500, node: 'node-camera' },
+            { text: "Synchronizing IMU data streams...", time: 3000, node: 'node-imu' },
+            { text: "Fusing thermal asymmetry markers...", time: 4500, node: 'node-thermal' },
+            { text: "Running multimodal risk assessment...", time: 6000, node: 'node-fusion' },
+            { text: "Finalizing clinical report...", time: 8000, node: 'node-report' }
+        ];
+        
+        steps.forEach(step => {
+            setTimeout(() => {
+                if (logs) {
+                    const p = document.createElement('p');
+                    p.className = "text-xs mb-1 animate-pulse";
+                    p.style.color = "#a0bef9";
+                    p.textContent = `> ${step.text}`;
+                    logs.appendChild(p);
+                    logs.scrollTop = logs.scrollHeight;
+                }
+                
+                const node = document.getElementById(step.node);
+                if (node) {
+                    node.classList.remove('bg-slate-800', 'border-slate-700');
+                    node.classList.add('bg-mediva-500', 'border-mediva-400', 'shadow-[0_0_15px_rgba(37,99,235,0.5)]');
+                    
+                    const line = document.getElementById(`line-${step.node}`);
+                    if (line) line.classList.add('bg-mediva-500');
+                }
+            }, step.time);
+        });
+        
+        setTimeout(() => {
+            this.state.workflow.riskAssessed = true;
+            this.updateDashboardUI();
+            this.playVoice('risk');
+            this.nav('risk');
+        }, 9500);
+    },
+    
+    stopDemoVideo(id) {
+        const vid = document.getElementById(id);
+        if (vid && vid.srcObject) {
+            vid.srcObject.getTracks().forEach(t => t.stop());
+            vid.srcObject = null;
+        }
+        if (this.state.rehabInterval) {
+            clearInterval(this.state.rehabInterval);
+            this.state.rehabInterval = null;
+        }
+        if (id === 'rehab-demo-video') this.state.rehabCamActive = false;
     }
 };
 

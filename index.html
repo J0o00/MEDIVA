@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEDIVA - AI-Assisted OA Risk Screening & Rehabilitation</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -18,236 +19,630 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
-                        display: ['Outfit', 'sans-serif'],
+                        display: ['"Bricolage Grotesque"', 'sans-serif'],
                     },
                     colors: {
                         mediva: {
-                            50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4', 400: '#2dd4bf',
-                            500: '#14b8a6', 600: '#0d9488', 700: '#0f766e', 800: '#115e59', 900: '#134e4a',
+                            25:  '#f0f5ff',
+                            50:  'rgba(16, 185, 129, 0.15)',
+                            100: 'rgba(16, 185, 129, 0.3)',
+                            200: '#a0bef9',
+                            300: '#6d9ef5',
+                            400: '#4b83f0',
+                            500: '#10b981',
+                            600: '#047857',
+                            700: '#064e3b',
+                            800: '#1e3a8a',
+                            900: '#1e3369',
                         },
-                        clinical: { bg: '#f8fafc', card: '#ffffff', text: '#0f172a', subtext: '#475569', border: '#e2e8f0' }
+                        clinical: {
+                            bg:    'rgba(255, 255, 255, 0.05)',
+                            card:  '#ffffff',
+                            text:  '#ffffff',
+                            sub:   '#5a6c85',
+                            muted: '#94a8c0',
+                            border:'rgba(255, 255, 255, 0.1)',
+                        }
                     },
-                    boxShadow: { 'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)', 'glow': '0 0 20px rgba(20, 184, 166, 0.3)' }
+                    boxShadow: {
+                        'glass': '0 8px 32px rgba(16,185,129,0.08)',
+                        'float': '0 20px 60px -12px rgba(16,185,129,0.15)',
+                        'card':  '0 4px 24px rgba(15,30,53,0.06)',
+                    }
                 }
             }
         }
     </script>
 
     <style>
-        body { background-color: theme('colors.clinical.bg'); color: theme('colors.clinical.text'); -webkit-font-smoothing: antialiased; }
-        .view-section { display: none; animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            background-image: radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0, transparent 50%), radial-gradient(at 100% 100%, rgba(4, 120, 87, 0.05) 0, transparent 50%);
+            background-attachment: fixed;
+            color: #0f1e35;
+            -webkit-font-smoothing: antialiased;
+        }
+        .view-section { display: none; animation: viewIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .view-section.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        .clinical-card { background: theme('colors.clinical.card'); border: 1px solid theme('colors.clinical.border'); border-radius: 1rem; box-shadow: theme('boxShadow.soft'); transition: all 0.3s ease; }
-        .clinical-card:hover { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); transform: translateY(-2px); }
-        .nav-item { display: flex; align-items: center; padding: 0.75rem 1rem; border-radius: 0.5rem; color: theme('colors.clinical.subtext'); font-weight: 500; transition: all 0.2s ease; cursor: pointer; }
-        .nav-item:hover { background-color: theme('colors.mediva.50'); color: theme('colors.mediva.700'); }
-        .nav-item.active { background-color: theme('colors.mediva.100'); color: theme('colors.mediva.700'); font-weight: 600; }
-        .status-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        
-        /* Wizard Progress */
-        .wizard-step { position: relative; flex: 1; text-align: center; }
-        .wizard-step::after { content: ''; position: absolute; top: 12px; left: 50%; width: 100%; height: 2px; background: #e2e8f0; z-index: -1; }
-        .wizard-step:last-child::after { display: none; }
-        .wizard-step.completed .wizard-icon { background: theme('colors.mediva.500'); color: white; border-color: theme('colors.mediva.500'); }
-        .wizard-step.completed::after { background: theme('colors.mediva.500'); }
-        .wizard-step.active .wizard-icon { border-color: theme('colors.mediva.500'); color: theme('colors.mediva.600'); font-weight: bold; }
-        .wizard-icon { width: 26px; height: 26px; border-radius: 50%; border: 2px solid #cbd5e1; background: white; margin: 0 auto 8px auto; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #94a3b8; transition: all 0.3s; }
+        @keyframes viewIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Glass Cards */
+                .glass-card {
+            background: #ffffff;
+            border-radius: 1rem; /* rounded-2xl */
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(163, 163, 163, 0.5); /* hover:border-neutral-400/50 */
+        }
+        .glass-card:hover { box-shadow: 0 12px 40px rgba(15,30,53,0.1), inset 0 1px 0 rgba(255,255,255,0.9); transform: translateY(-2px); }
+        /* Keep glass-card as alias for backward compat */
+        .glass-card {
+            background: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 4px 24px rgba(15,30,53,0.06);
+            transition: all 0.3s ease;
+        }
+        .glass-card:hover { box-shadow: 0 12px 40px rgba(15,30,53,0.1); transform: translateY(-2px); }
+        .metric-card {
+            background: #ffffff;
+            border-radius: 1rem;
+            padding: 1.25rem 1.5rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12);
+            transition: all 0.25s ease;
+        }
+        .metric-card:hover { box-shadow: 0 8px 28px rgba(15,30,53,0.09); transform: translateY(-2px); }
+        .float-card {
+            background: #ffffff;
+            border-radius: 1.5rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06), 0 22.3px 17.9px rgba(0, 0, 0, 0.072), 0 41.8px 33.4px rgba(0, 0, 0, 0.086), 0 100px 80px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: rgba(255,255,255,0.97);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid rgba(220,228,240,0.8);
+        }
+        .nav-section-label {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a8c0;
+            padding: 0.5rem 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.875rem;
+            border-radius: 0.625rem;
+            color: #5a6c85;
+            font-weight: 500;
+            font-size: 0.8rem;
+            transition: all 0.18s ease;
+            cursor: pointer;
+            margin: 1px 0;
+        }
+        .nav-item:hover { background: rgba(16, 185, 129, 0.15); color: #047857; }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), #eff6ff);
+            color: #047857;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.12);
+        }
+
+        /* Status Pills */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+        .status-low    { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-mod    { background: rgba(251, 191, 36, 0.1); color: #b45309; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .status-high   { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+        .status-info   { background: rgba(16, 185, 129, 0.15); color: #047857; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-demo   { background: #f3e8ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+        .status-offline{ background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; }
+        .status-sync   { background: rgba(251, 191, 36, 0.1); color: #d97706; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .status-online { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        /* Keep status-pulse for old code */
+        .status-pulse { animation: pulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Risk Badges */
+        .risk-badge { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.18rem 0.55rem; border-radius: 9999px; }
+        .risk-low  { background: #dcfce7; color: #166534; }
+        .risk-mod  { background: #fef9c3; color: #854d0e; }
+        .risk-high { background: #fee2e2; color: #991b1b; }
+
+        /* Buttons */
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.7rem 1.4rem;
+            background: linear-gradient(135deg, #10b981, #047857);
+            color: white; border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem;
+            border: none; cursor: pointer;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.28);
+            transition: all 0.2s ease;
+        }
+        .btn-primary:hover { background: linear-gradient(135deg, #047857, #064e3b); box-shadow: 0 8px 24px rgba(16,185,129,0.38); transform: translateY(-1px); }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.7rem 1.4rem;
+            background: white; color: #047857;
+            border-radius: 0.75rem; font-weight: 600; font-size: 0.875rem;
+            border: 1.5px solid rgba(16, 185, 129, 0.3); cursor: pointer;
+            box-shadow: 0 2px 8px rgba(16,185,129,0.08);
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover { background: rgba(16, 185, 129, 0.15); border-color: #10b981; transform: translateY(-1px); }
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            padding: 0.5rem 1rem; background: transparent; color: #5a6c85;
+            border-radius: 0.625rem; font-weight: 600; font-size: 0.8rem;
+            border: none; cursor: pointer; transition: all 0.2s ease;
+        }
+        .btn-ghost:hover { background: rgba(255, 255, 255, 0.05); color: #0f1e35; }
+
+        /* Form Inputs */
+        .form-input {
+            width: 100%; background: #f8fafc; border: 1.5px solid rgba(255, 255, 255, 0.1); color: #0f1e35;
+            font-weight: 500; padding: 0.7rem 1rem; border-radius: 0.75rem;
+            outline: none; transition: all 0.2s; font-size: 0.875rem;
+        }
+        .form-input:focus { border-color: #10b981; background: white; box-shadow: 0 0 0 3px rgba(16,185,129,0.08); }
+        .form-label { display: block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #5a6c85; margin-bottom: 0.5rem; }
+
+        /* Symptom cards */
+        .symptom-card { padding: 0.875rem; border-radius: 0.875rem; border: 2px solid rgba(255, 255, 255, 0.1); background: white; cursor: pointer; transition: all 0.2s ease; text-align: center; }
+        .symptom-card:hover { border-color: #a0bef9; background: #f0f5ff; }
+        .symptom-card.selected { border-color: #10b981; background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+
+        /* Demo banner */
+        .demo-banner { background: linear-gradient(135deg, #f3e8ff, #fdf4ff); border: 1px solid #e9d5ff; border-radius: 0.5rem; padding: 0.3rem 0.65rem; display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.62rem; font-weight: 800; color: #7c3aed; text-transform: uppercase; letter-spacing: 0.08em; }
+
+        /* Exercise cards */
+        .exercise-card { background: white; border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 1rem; overflow: hidden; transition: all 0.25s ease; }
+        .exercise-card:hover { border-color: #a0bef9; box-shadow: 0 8px 24px rgba(16,185,129,0.1); transform: translateY(-2px); }
+
+        /* Mobile bottom nav */
+        .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(23,23,23,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(220,228,240,0.8); padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-around; z-index: 50; }
+        .mobile-nav-item { display: flex; flex-direction: column; align-items: center; gap: 0.2rem; padding: 0.4rem 0.5rem; border-radius: 0.625rem; transition: all 0.2s ease; cursor: pointer; flex: 1; min-width: 0; }
+        .mobile-nav-item.active { background: rgba(16, 185, 129, 0.15); }
+        .mobile-nav-item span { font-size: 0.58rem; font-weight: 600; color: #94a8c0; white-space: nowrap; }
+        .mobile-nav-item.active span { color: #10b981; }
+        .mobile-nav-item svg { color: #94a8c0; }
+        .mobile-nav-item.active svg { color: #10b981; }
+
+        /* Wizard Track */
+        .wizard-track { display: flex; align-items: center; position: relative; margin-bottom: 2rem; }
+        .wizard-step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+        .wizard-step-item:not(:last-child)::after { content: ''; position: absolute; top: 1rem; left: 50%; width: 100%; height: 2px; background: rgba(255, 255, 255, 0.1); z-index: 0; transition: background 0.4s; }
+        .wizard-step-item.completed:not(:last-child)::after { background: #10b981; }
+        .wizard-dot { width: 2rem; height: 2rem; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.1); background: white; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; color: #94a8c0; z-index: 1; transition: all 0.3s; position: relative; }
+        .wizard-step-item.active .wizard-dot { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 0 4px rgba(16,185,129,0.12); }
+        .wizard-step-item.completed .wizard-dot { border-color: #10b981; background: #10b981; color: white; }
+        .wizard-label { font-size: 0.62rem; font-weight: 600; color: #94a8c0; margin-top: 0.35rem; text-align: center; }
+        .wizard-step-item.active .wizard-label { color: #10b981; }
+        .wizard-step-item.completed .wizard-label { color: #5a6c85; }
+        /* Pathway nodes */
+        .pathway-node { width: 2.1rem; height: 2.1rem; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.1); background: white; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; font-weight: 700; color: #94a8c0; transition: all 0.5s cubic-bezier(0.4,0,0.2,1); position: relative; z-index: 1; }
+        .pathway-node.done { background: linear-gradient(135deg, #10b981, #047857); border-color: #10b981; color: white; box-shadow: 0 4px 12px rgba(16,185,129,0.3); }
+
+        /* AI dots */
+        .ai-processing-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; animation: processingDot 1.4s ease-in-out infinite; }
+        .ai-processing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .ai-processing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes processingDot { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+
+        /* Sensor nodes */
+        .sensor-node { width: 3rem; height: 3rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.3s; }
+        .sensor-node.connected { background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), #dbeafe); border: 2px solid #93c5fd; }
+        .sensor-node.connected::after { content: ''; position: absolute; width: 0.5rem; height: 0.5rem; background: #22c55e; border-radius: 50%; bottom: -0.1rem; right: -0.1rem; border: 2px solid white; animation: pulse 2s infinite; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a0bef9; }
+
+        /* X-Ray viewer */
+        .xray-viewer { background: #080f1a; border-radius: 1rem; overflow: hidden; position: relative; }
+
+        /* Report */
+        .report-section { border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .report-section:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+
+        /* Progress ring */
+        .progress-ring circle { transition: stroke-dashoffset 1s ease; }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) { body { padding-bottom: 5rem; } }
+
+        /* Scroll animation */
+        @keyframes scrollLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <!-- Global Navigation (Desktop Sidebar) -->
-    <aside class="hidden md:flex flex-col w-64 bg-white border-r border-slate-200 h-full shrink-0">
-        <div class="p-6 cursor-pointer" onclick="mediva.nav('dashboard')">
-            <h1 class="text-3xl font-display font-black tracking-tight text-mediva-700 flex items-center gap-2">
-                MEDIVA
-            </h1>
-            <p class="text-xs text-slate-500 mt-1 font-medium">OA Risk & Rehab Platform</p>
-        </div>
-
-        <div class="px-4 pb-4 border-b border-slate-100 mb-4">
-            <div class="bg-slate-50 rounded-lg p-3 border border-slate-200 mb-4 flex flex-col gap-2">
-                <div class="flex justify-between items-center text-xs">
-                    <span class="font-semibold text-slate-600 uppercase tracking-wider">Status</span>
-                    <span class="flex items-center gap-1 text-mediva-600 font-bold"><span class="w-2 h-2 rounded-full bg-mediva-500 status-pulse"></span> OFFLINE MODE</span>
+    <!-- SIDEBAR (DESKTOP) -->
+    <aside class="sidebar hidden md:flex flex-col w-60 h-full shrink-0 overflow-y-auto">
+        <!-- Logo -->
+        <div class="px-5 pt-5 pb-3 cursor-pointer shrink-0" onclick="mediva.nav('dashboard')">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shadow-md" style="background: linear-gradient(135deg, #10b981, #064e3b);">
+                    <svg class="w-4 h-4 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                 </div>
-                <div class="flex justify-between items-center text-xs mt-1">
-                    <span class="font-semibold text-slate-600 uppercase tracking-wider">Sync Center</span>
-                    <span class="text-yellow-600 font-medium">3 Pending</span>
+                <div>
+                    <h1 class="text-lg font-display font-black text-mediva-700 tracking-tight leading-none">MEDIVA</h1>
+                    <p class="text-[9px] font-semibold text-clinical-muted uppercase tracking-widest">Knee Health AI</p>
                 </div>
             </div>
-            
-            <div class="mb-2">
-                <select id="lang-selector" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm font-medium rounded-lg px-3 py-2 outline-none focus:border-mediva-500 transition-colors">
-                    <option value="en">🌐 English</option>
-                    <option value="as">🌐 Assamese</option>
-                    <option value="bn">🌐 Bengali</option>
-                    <option value="mni">🌐 Meitei</option>
-                    <option value="kha">🌐 Khasi</option>
-                    <option value="lus">🌐 Mizo</option>
-                </select>
+        </div>
+        <!-- Patient Context Bar -->
+        <div class="mx-3 mb-3 p-3 rounded-xl bg-clinical-bg border border-clinical-border">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-full flex items-center justify-center text-slate-800 font-bold text-xs shadow-sm shrink-0" style="background: linear-gradient(135deg, #4b83f0, #047857);">DP</div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-clinical-text truncate">Demo Patient</span>
+                        <span class="risk-badge risk-mod ml-1 shrink-0">Mod</span>
+                    </div>
+                    <p class="text-[10px] text-clinical-muted font-medium">MED-001 &middot; 58F</p>
+                </div>
+            </div>
+            <div class="flex items-center justify-between mt-2 pt-2 border-t border-clinical-border">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span class="text-[9px] font-bold text-amber-600 uppercase tracking-wide">Offline Mode</span>
+                </div>
+                <span class="text-[9px] text-clinical-muted font-medium">3 Pending</span>
             </div>
         </div>
-
-        <nav class="flex-1 px-4 space-y-1 overflow-y-auto pb-6">
-            <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 mt-4">Core Pathway</p>
-            <a onclick="mediva.nav('dashboard')" class="nav-item active" id="nav-dashboard">Overview Dashboard</a>
-            
-            <div class="my-4 border-t border-slate-100"></div>
-            <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">1. Screen</p>
-            <a onclick="mediva.nav('screening')" class="nav-item" id="nav-screening">Patient Factors</a>
-            <a onclick="mediva.nav('movement')" class="nav-item" id="nav-movement">Movement Lab</a>
-            <a onclick="mediva.nav('wearables')" class="nav-item" id="nav-wearables">Wearables Kit</a>
-            
-            <div class="my-4 border-t border-slate-100"></div>
-            <p class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">2. Analyze & Risk</p>
-            <a onclick="mediva.nav('analysis')" class="nav-item" id="nav-analysis">AI Sensor Fusion</a>
-            <a onclick="mediva.nav('risk')" class="nav-item" id="nav-risk">Risk Assessment</a>
-            
-            <div class="my-4 border-t border-slate-100"></div>
-            <div class="my-4 border-t border-slate-100"></div>
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 overflow-y-auto pb-4">
+            <div class="nav-section-label">Overview</div>
+            <a onclick="mediva.nav('dashboard')" class="nav-item active" id="nav-dashboard">&#127968; Overview</a>
+            <div class="nav-section-label">Screening</div>
+            <a onclick="mediva.nav('screening')" class="nav-item" id="nav-screening"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg> Patient Factors</a>
+            <a onclick="mediva.nav('movement')" class="nav-item" id="nav-movement"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.879V15.12a1 1 0 01-1.447.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> Movement Lab</a>
+            <a onclick="mediva.nav('wearables')" class="nav-item" id="nav-wearables"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg> Wearables</a>
+            <a onclick="mediva.nav('temperature')" class="nav-item" id="nav-temperature"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg> Knee Temp</a>
+            <div class="nav-section-label">Analysis</div>
+            <a onclick="mediva.nav('analysis')" class="nav-item" id="nav-analysis"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg> AI Fusion</a>
+            <a onclick="mediva.nav('risk')" class="nav-item" id="nav-risk">&#128202; Risk Assessment</a>
+            <div class="nav-section-label">Clinical</div>
+            <a onclick="mediva.nav('referral')" class="nav-item" id="nav-referral">&#127973; Clinical &amp; X-Ray</a>
+            <a onclick="mediva.nav('rehab')" class="nav-item" id="nav-rehab"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg> Rehabilitation</a>
+            <div class="nav-section-label">Monitoring</div>
+            <a onclick="mediva.nav('progress')" class="nav-item" id="nav-progress"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg> Progress</a>
+            <a onclick="mediva.nav('reports')" class="nav-item" id="nav-reports">&#128196; Reports</a>
+            <a onclick="mediva.nav('clinician')" class="nav-item" id="nav-clinician">&#128104;&#8205;&#9877; Clinician Portal</a>
         </nav>
+        <!-- Bottom Controls -->
+        <div class="px-3 pb-4 shrink-0 border-t border-clinical-border pt-3">
+            <select id="lang-selector" class="form-input text-xs py-2 mb-2">
+                <option value="en">&#127760; English</option>
+                <option value="as">&#127760; Assamese</option>
+                <option value="bn">&#127760; Bengali</option>
+                <option value="mni">&#127760; Meitei</option>
+                <option value="kha">&#127760; Khasi</option>
+                <option value="lus">&#127760; Mizo</option>
+            </select>
+            <div class="flex gap-2">
+                <button onclick="mediva.toggleVoiceAssist()" class="flex-1 flex items-center justify-center gap-1 py-2 bg-clinical-bg hover:bg-mediva-50 border border-clinical-border rounded-lg text-[11px] font-semibold text-clinical-sub transition-all">Voice</button>
+                <button onclick="mediva.nav('status')" class="flex-1 flex items-center justify-center gap-1 py-2 bg-clinical-bg hover:bg-mediva-50 border border-clinical-border rounded-lg text-[11px] font-semibold text-clinical-sub transition-all">System</button>
+            </div>
+        </div>
     </aside>
 
+
     <!-- Main Content Area -->
-    <main class="flex-1 overflow-y-auto relative bg-slate-50 flex flex-col h-full">
+    <main class="flex-1 overflow-y-auto relative flex flex-col h-full" style="background: rgba(255, 255, 255, 0.05);">
         
-        <!-- Top User Bar -->
-        <div class="flex justify-between items-center px-8 py-4 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-20 shrink-0">
-            <div>
-                <p class="text-sm text-slate-500 font-bold" id="header-greeting">Demo Mode Active</p>
+        <!-- Top Header Bar -->
+        <header class="flex items-center justify-between px-5 md:px-8 py-3.5 sticky top-0 z-30 shrink-0" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(220,228,240,0.8);">
+            <div class="flex items-center gap-3">
+                <!-- Mobile branding -->
+                <div class="md:hidden flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background: linear-gradient(135deg, #10b981, #064e3b);">
+                        <svg class="w-3 h-3 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <span class="font-display font-black text-mediva-700 text-base">MEDIVA</span>
+                </div>
+                <div class="demo-banner hidden md:inline-flex">
+                    <span class="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
+                    Demo Mode Active
+                </div>
             </div>
-            <div class="flex items-center gap-4">
-                <button class="flex items-center justify-center w-10 h-10 rounded-full bg-mediva-50 text-mediva-600 hover:bg-mediva-100 transition-colors relative shadow-sm" onclick="mediva.toggleVoiceAssist()">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+            <div class="flex items-center gap-2">
+                <button onclick="mediva.toggleVoiceAssist()" class="w-8 h-8 rounded-lg flex items-center justify-center text-clinical-sub hover:text-mediva-500 transition-all" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
                 </button>
-                <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
-                    <div class="w-8 h-8 rounded-full bg-mediva-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">DP</div>
-                    <div>
-                        <select id="patient-selector" class="text-sm font-bold text-slate-800 bg-transparent outline-none cursor-pointer">
-                            <option value="MED-001">MED-001 (Demo Patient)</option>
-                        </select>
+                <div class="flex items-center gap-2.5 pl-3" style="border-left: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center text-slate-800 font-bold text-xs" style="background: linear-gradient(135deg, #4b83f0, #047857);">DP</div>
+                    <div class="hidden sm:block">
+                        <p class="text-xs font-bold text-clinical-text leading-none">Demo Patient</p>
+                        <p class="text-[10px] text-clinical-muted">MED-001</p>
                     </div>
                 </div>
             </div>
-        </div>
+        </header>
 
         <!-- Views Container -->
         <div class="p-4 md:p-8 flex-1" id="app-views">
             
             <!-- VIEW: DASHBOARD -->
             <div id="view-dashboard" class="view-section active max-w-6xl mx-auto">
-                
-                <!-- MEDIVA CARE PATHWAY -->
-                <div class="mb-8">
-                    <h2 class="text-lg font-display font-bold text-slate-800 mb-4">MEDIVA Care Pathway</h2>
-                    <div class="clinical-card p-6 overflow-x-auto">
-                        <div class="flex items-center min-w-[700px] justify-between relative z-0">
-                            <div class="absolute top-1/2 left-4 right-4 h-1 bg-slate-200 -z-10 transform -translate-y-1/2"></div>
-                            <div id="pathway-progress" class="absolute top-1/2 left-4 w-12 h-1 bg-mediva-500 -z-10 transform -translate-y-1/2 transition-all duration-700"></div>
-                            
-                            <div class="flex flex-col items-center gap-2 bg-white px-2">
-                                <div id="pw-screen" class="w-8 h-8 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center font-bold">1</div>
-                                <span class="text-xs font-bold text-slate-500 uppercase">Screen</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-2 bg-white px-2">
-                                <div id="pw-analyze" class="w-8 h-8 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center font-bold">2</div>
-                                <span class="text-xs font-bold text-slate-500 uppercase">Analyze</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-2 bg-white px-2">
-                                <div id="pw-risk" class="w-8 h-8 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center font-bold">3</div>
-                                <span class="text-xs font-bold text-slate-500 uppercase">Risk Assess</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-2 bg-white px-2">
-                                <div id="pw-refer" class="w-8 h-8 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center font-bold">4</div>
-                                <span class="text-xs font-bold text-slate-500 uppercase">Confirm</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-2 bg-white px-2">
-                                <div id="pw-rehab" class="w-8 h-8 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center font-bold">5</div>
-                                <span class="text-xs font-bold text-slate-500 uppercase">Rehabilitate</span>
-                            </div>
-                            <div class="flex flex-col items-center gap-2 bg-white px-2">
-                                <div id="pw-monitor" class="w-8 h-8 rounded-full bg-white border-2 border-slate-300 text-slate-400 flex items-center justify-center font-bold">6</div>
-                                <span class="text-xs font-bold text-slate-500 uppercase">Monitor</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Patient Snapshot -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="clinical-card p-6 col-span-1 md:col-span-2 flex gap-6 items-start">
-                        <div class="w-16 h-16 rounded-2xl bg-mediva-50 flex items-center justify-center text-mediva-600 border border-mediva-100 shrink-0">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start">
-                                <div><h3 class="text-2xl font-bold text-slate-800">Demo Patient</h3><p class="text-sm text-slate-500 font-bold">MED-001</p></div>
-                                <span id="dash-risk-badge" class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full border border-slate-200">Pending Screening</span>
-                            </div>
-                            <div class="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
-                                <div><p class="text-xs text-slate-400 font-bold uppercase">Age/Sex</p><p class="font-bold text-slate-700">58 / F</p></div>
-                                <div><p class="text-xs text-slate-400 font-bold uppercase">BMI</p><p class="font-bold text-slate-700">28.5</p></div>
-                                <div><p class="text-xs text-slate-400 font-bold uppercase">Re-Screen</p><p class="font-bold text-slate-700">Overdue</p></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Hero -->
-                    <div class="clinical-card p-6 col-span-1 bg-gradient-to-br from-slate-800 to-slate-900 text-white flex flex-col justify-between border-0 shadow-xl relative overflow-hidden">
-                        <div class="absolute -right-4 -top-4 w-24 h-24 bg-mediva-500 rounded-full blur-3xl opacity-30"></div>
-                        <div>
-                            <h3 class="text-lg font-bold mb-1 flex items-center gap-2"><div class="w-2 h-2 rounded-full bg-mediva-400"></div> OA Screening</h3>
-                            <p class="text-slate-400 text-sm mb-4">Start multimodal data collection for early risk detection.</p>
-                        </div>
-                        <button onclick="mediva.startWizard()" class="w-full py-3 bg-mediva-500 hover:bg-mediva-400 text-white rounded-xl font-bold shadow-lg shadow-mediva-500/30 transition-all text-sm tracking-wide">Begin Assessment →</button>
-                    </div>
-                </div>
-                
-                <h2 class="text-lg font-display font-bold text-slate-800 mb-4">Active Workflow Stages</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Cards representing the steps, unlocking sequentially -->
-                    <div id="card-patient" class="clinical-card p-5 cursor-pointer hover:border-mediva-400" onclick="mediva.nav('screening')">
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-slate-700">1. Patient Factors</h4>
-                            <div id="icon-patient" class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs">...</div>
-                        </div>
-                        <p class="text-xs text-slate-500 mb-3">Clinical Questionnaire</p>
-                        <span id="btn-patient" class="text-sm font-bold text-mediva-600">Start →</span>
-                    </div>
+                <!-- HERO CARD -->
+                <div class="glass-card p-6 md:p-10 mb-6 relative overflow-hidden" style="background: transparent;">
+                    <div class="absolute inset-0 bg-[url(assets/knee-bg.jpg)] bg-cover bg-center opacity-80 mix-blend-overlay"></div>
+                    <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-white/30"></div>
                     
-                    <div id="card-movement" class="clinical-card p-5 cursor-pointer hover:border-mediva-400" onclick="mediva.nav('movement')">
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-slate-700">2. Movement Lab</h4>
-                            <div id="icon-movement" class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs">...</div>
+                    <div class="relative z-10 flex flex-col gap-10">
+                        <!-- Top Row: Text and Patient Card -->
+                        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+                            <div class="flex-1 max-w-xl">
+                                <div class="flex items-center gap-2 mb-3">
+                                    <span class="status-pill status-demo"><span class="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>Demo Mode Active</span>
+                                </div>
+                                <h2 class="text-3xl md:text-5xl font-display font-black leading-tight mb-4 text-slate-800">
+                                    Understand your knee.<br><span class="text-emerald-600">Move better.</span>
+                                </h2>
+                                <p class="text-sm md:text-base mb-6 text-slate-600">AI-assisted knee OA risk screening and rehabilitation. Multimodal sensor fusion for clinical decision support.</p>
+                                <div class="flex flex-wrap gap-3">
+                                    <button class="btn-primary" onclick="mediva.startWizard()">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        Start Screening
+                                    </button>
+                                    <button class="btn-secondary" onclick="mediva.nav('risk')">View Results</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Patient card -->
+                            <div class="w-full md:w-64 float-card p-5 shrink-0 bg-white/90 backdrop-blur-md">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-md bg-gradient-to-br from-emerald-400 to-emerald-600">DP</div>
+                                    <div>
+                                        <p class="font-bold text-sm text-slate-800">Demo Patient</p>
+                                        <p class="text-xs text-slate-500">MED-001</p>
+                                    </div>
+                                    <span id="hero-risk-badge" class="risk-badge risk-mod ml-auto">Moderate</span>
+                                </div>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div class="rounded-xl p-2 bg-slate-50"><p class="text-[10px] font-bold uppercase text-slate-400">Age</p><p class="font-bold text-sm text-slate-700">58</p></div>
+                                    <div class="rounded-xl p-2 bg-slate-50"><p class="text-[10px] font-bold uppercase text-slate-400">Sex</p><p class="font-bold text-sm text-slate-700">F</p></div>
+                                    <div class="rounded-xl p-2 bg-slate-50"><p class="text-[10px] font-bold uppercase text-slate-400">BMI</p><p class="font-bold text-sm text-slate-700">28.5</p></div>
+                                </div>
+                            </div>
                         </div>
-                        <p class="text-xs text-slate-500 mb-3">Camera Kinematics</p>
-                        <span id="btn-movement" class="text-sm font-bold text-mediva-600">Start →</span>
-                    </div>
 
-                    <div id="card-wearables" class="clinical-card p-5 cursor-pointer hover:border-mediva-400" onclick="mediva.nav('wearables')">
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-slate-700">3. Wearables Kit</h4>
-                            <div id="icon-wearables" class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs">...</div>
+                        <!-- ONBOARDING CARD (Landscape) -->
+                        <div class="metric-card p-6 md:p-8 flex flex-col xl:flex-row items-center gap-8 w-full bg-white/95 backdrop-blur-xl border border-white shadow-xl">
+                            <!-- Left: Intro -->
+                            <div class="flex flex-col items-center xl:items-start text-center xl:text-left max-w-sm">
+                                <div class="flex justify-center xl:justify-start mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-emerald-100 to-green-100 rounded-full flex items-center justify-center shadow-inner">
+                                        <svg class="w-8 h-8" viewBox="0 0 48 48" fill="none">
+                                            <circle cx="24" cy="24" r="6" fill="#10b981"></circle>
+                                            <circle cx="24" cy="8.5" r="3" fill="#6ee7b7"></circle>
+                                            <circle cx="10.5" cy="17" r="3" fill="#6ee7b7"></circle>
+                                            <circle cx="37.5" cy="17" r="3" fill="#6ee7b7"></circle>
+                                            <circle cx="15" cy="36" r="3" fill="#6ee7b7"></circle>
+                                            <circle cx="33" cy="36" r="3" fill="#6ee7b7"></circle>
+                                            <line x1="24" y1="18" x2="24" y2="11.5" stroke="#10b981" stroke-width="2"></line>
+                                            <line x1="21" y1="20.5" x2="12.8" y2="18.8" stroke="#10b981" stroke-width="2"></line>
+                                            <line x1="27" y1="20.5" x2="35.2" y2="18.8" stroke="#10b981" stroke-width="2"></line>
+                                            <line x1="19.5" y1="27" x2="16.6" y2="33.2" stroke="#10b981" stroke-width="2"></line>
+                                            <line x1="28.5" y1="27" x2="31.4" y2="33.2" stroke="#10b981" stroke-width="2"></line>
+                                            <ellipse cx="24" cy="30.5" rx="7" ry="2" fill="#34d399" fill-opacity="0.15"></ellipse>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <h2 class="text-xl font-semibold text-slate-800 mb-2 font-display">Welcome to MEDIVA</h2>
+                                <p class="text-slate-500 text-sm">Visualize, connect, and analyze knee osteoarthritis data in minutes. Let's get started!</p>
+                            </div>
+                            
+                            <!-- Middle: Steps -->
+                            <div class="flex flex-col md:flex-row gap-4 flex-1 justify-center w-full">
+                                <div class="flex items-start gap-3 bg-slate-50/50 p-4 rounded-xl flex-1 border border-slate-100">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-medium shrink-0">1</div>
+                                    <div>
+                                        <div class="font-medium text-slate-800 text-sm">Register Patient</div>
+                                        <div class="text-xs text-slate-500 mt-1">Set up the profile and demographics.</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 bg-slate-50/50 p-4 rounded-xl flex-1 border border-slate-100">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-medium shrink-0">2</div>
+                                    <div>
+                                        <div class="font-medium text-slate-800 text-sm">Doorstep Screening</div>
+                                        <div class="text-xs text-slate-500 mt-1">Run camera kinematics & thermal analysis.</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-3 bg-slate-50/50 p-4 rounded-xl flex-1 border border-slate-100">
+                                    <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-medium shrink-0">3</div>
+                                    <div>
+                                        <div class="font-medium text-slate-800 text-sm">Clinical Referral</div>
+                                        <div class="text-xs text-slate-500 mt-1">Review insights and assign rehabilitation.</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right: Actions -->
+                            <div class="flex flex-col gap-3 w-full xl:w-48 shrink-0">
+                                <button class="w-full py-3 bg-mediva-500 text-white rounded-lg font-medium text-sm hover:bg-mediva-600 transition shadow-lg shadow-emerald-500/20" onclick="mediva.nav('screening')">Start Screening</button>
+                                <button class="w-full py-3 bg-slate-100 text-slate-700 rounded-lg font-medium text-sm hover:bg-slate-200 transition" onclick="mediva.nav('referral')">Skip to Referrals</button>
+                            </div>
                         </div>
-                        <p class="text-xs text-slate-500 mb-3">4× IMU Synchronization</p>
-                        <span id="btn-wearables" class="text-sm font-bold text-mediva-600">Start →</span>
                     </div>
-
-                    <div id="card-analysis" class="clinical-card p-5 bg-slate-50 border-slate-200 opacity-60">
-                        <div class="flex justify-between items-start mb-2">
-                            <h4 class="font-bold text-slate-500">4. AI Analysis</h4>
-                            <div class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-slate-400"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></div>
+                </div>
+                <!-- Onboarding Content -->
+                <h2 class="text-2xl font-semibold text-slate-800 text-center mb-2 font-display">Welcome to MEDIVA</h2>
+                <p class="text-slate-500 text-center mb-6 text-sm">Visualize, connect, and analyze knee osteoarthritis data in minutes. Let's get you started!</p>
+                <!-- Steps -->
+                <div class="flex flex-col gap-4 mb-6 w-full">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-medium shrink-0">1</div>
+                        <div>
+                            <div class="font-medium text-slate-800 text-sm">Register Patient</div>
+                            <div class="text-xs text-slate-500">Set up the profile and demographics.</div>
                         </div>
-                        <p class="text-xs text-slate-400 mb-3">Sensor Fusion & Risk</p>
-                        <span id="btn-analysis" class="text-sm font-bold text-slate-400">Locked</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-medium shrink-0">2</div>
+                        <div>
+                            <div class="font-medium text-slate-800 text-sm">Doorstep Screening</div>
+                            <div class="text-xs text-slate-500">Run camera kinematics & thermal analysis.</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 font-medium shrink-0">3</div>
+                        <div>
+                            <div class="font-medium text-slate-800 text-sm">Clinical Referral</div>
+                            <div class="text-xs text-slate-500">Review insights and assign rehabilitation.</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actions -->
+                <div class="flex flex-col gap-3 w-full">
+                    <button class="w-full py-3 bg-mediva-500 text-white rounded-lg font-medium text-base hover:bg-mediva-600 transition shadow-lg shadow-emerald-500/30" onclick="mediva.nav('screening')">Start Screening</button>
+                    <button class="w-full py-3 bg-slate-100 text-slate-700 rounded-lg font-medium text-base hover:bg-slate-200 transition" onclick="mediva.nav('referral')">Skip to Referrals</button>
+                </div>
+            </div>
+
+                    </div>
+                </div>
+
+                <!-- CARE PATHWAY -->
+                <div class="glass-card p-5 mb-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-display font-bold text-sm" style="color:#ffffff;">MEDIVA Care Pathway</h3>
+                        <span class="text-[10px] font-medium" style="color:#94a8c0;">Step 2 of 6</span>
+                    </div>
+                    <div class="flex items-center overflow-x-auto pb-1">
+                        <div class="flex items-center min-w-max gap-0 w-full">
+                            <div class="flex flex-col items-center min-w-[4rem]"><div id="pw-screen" class="pathway-node done"><svg class="w-4 h-4 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div><span class="text-[9px] font-semibold mt-1 text-center" style="color:#94a8c0;">Screen</span></div>
+                            <div class="flex-1 h-0.5 mx-1" style="background:rgba(255, 255, 255, 0.1);min-width:1rem;"></div>
+                            <div class="flex flex-col items-center min-w-[4rem]"><div id="pw-analyze" class="pathway-node">2</div><span class="text-[9px] font-semibold mt-1 text-center" style="color:#94a8c0;">Analyze</span></div>
+                            <div class="flex-1 h-0.5 mx-1" style="background:rgba(255, 255, 255, 0.1);min-width:1rem;"></div>
+                            <div class="flex flex-col items-center min-w-[4rem]"><div id="pw-risk" class="pathway-node">3</div><span class="text-[9px] font-semibold mt-1 text-center" style="color:#94a8c0;">Risk</span></div>
+                            <div class="flex-1 h-0.5 mx-1" style="background:rgba(255, 255, 255, 0.1);min-width:1rem;"></div>
+                            <div class="flex flex-col items-center min-w-[4rem]"><div id="pw-refer" class="pathway-node">4</div><span class="text-[9px] font-semibold mt-1 text-center" style="color:#94a8c0;">Confirm</span></div>
+                            <div class="flex-1 h-0.5 mx-1" style="background:rgba(255, 255, 255, 0.1);min-width:1rem;"></div>
+                            <div class="flex flex-col items-center min-w-[4rem]"><div id="pw-rehab" class="pathway-node">5</div><span class="text-[9px] font-semibold mt-1 text-center" style="color:#94a8c0;">Rehab</span></div>
+                            <div class="flex-1 h-0.5 mx-1" style="background:rgba(255, 255, 255, 0.1);min-width:1rem;"></div>
+                            <div class="flex flex-col items-center min-w-[4rem]"><div id="pw-monitor" class="pathway-node">6</div><span class="text-[9px] font-semibold mt-1 text-center" style="color:#94a8c0;">Monitor</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUICK METRICS -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                    <div class="metric-card"><p class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#94a8c0;">Movement Score</p><p class="text-3xl font-display font-black leading-none mb-1" style="color:#10b981;">82</p><p class="text-xs font-medium" style="color:#5a6c85;">Good</p></div>
+                    <div class="metric-card"><p class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#94a8c0;">Risk Status</p><p class="text-2xl font-display font-black leading-none mb-1" style="color:#b45309;">Mod.</p><span class="status-pill status-mod">Screening result</span></div>
+                    <div class="metric-card"><p class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#94a8c0;">Wearables</p><p class="text-3xl font-display font-black leading-none mb-1" style="color:#ffffff;">4/4</p><span class="status-pill status-low">Connected</span></div>
+                    <div class="metric-card"><p class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#94a8c0;">Rehab Today</p><p class="text-3xl font-display font-black leading-none mb-1" style="color:#ffffff;">3</p><p class="text-xs font-medium" style="color:#5a6c85;">Exercises</p></div>
+                </div>
+
+                <!-- WORKFLOW CARDS -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+                    <div id="card-patient" class="glass-card p-4 cursor-pointer" onclick="mediva.nav('screening')">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:rgba(16, 185, 129, 0.15); border:1px solid rgba(16, 185, 129, 0.3);"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div>
+                            <span id="icon-patient" class="status-pill status-info">Pending</span>
+                        </div>
+                        <h4 class="font-bold text-sm mb-1" style="color:#ffffff;">Patient Factors</h4>
+                        <p class="text-[11px] mb-3" style="color:#94a8c0;">Clinical questionnaire</p>
+                        <span class="text-[11px] font-bold" style="color:#10b981;">Start &#8594;</span>
+                    </div>
+                    <div id="card-movement" class="glass-card p-4 cursor-pointer" onclick="mediva.nav('movement')">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:#e0f2fe; border:1px solid #7dd3fc;"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.879V15.12a1 1 0 01-1.447.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></div>
+                            <span id="icon-movement" class="status-pill status-info">Pending</span>
+                        </div>
+                        <h4 class="font-bold text-sm mb-1" style="color:#ffffff;">Movement Lab</h4>
+                        <p class="text-[11px] mb-3" style="color:#94a8c0;">Camera kinematics</p>
+                        <span class="text-[11px] font-bold" style="color:#10b981;">Start &#8594;</span>
+                    </div>
+                    <div id="card-wearables" class="glass-card p-4 cursor-pointer" onclick="mediva.nav('wearables')">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:#d1fae5; border:1px solid #86efac;"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg></div>
+                            <span id="icon-wearables" class="status-pill status-info">Pending</span>
+                        </div>
+                        <h4 class="font-bold text-sm mb-1" style="color:#ffffff;">Wearables</h4>
+                        <p class="text-[11px] mb-3" style="color:#94a8c0;">4x IMU sync</p>
+                        <span class="text-[11px] font-bold" style="color:#10b981;">Start &#8594;</span>
+                    </div>
+                    <div id="card-analysis" class="glass-card p-4 opacity-50 pointer-events-none">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style="background:#f3e8ff; border:1px solid #ddd6fe;"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/></svg></div>
+                            <span class="status-pill status-info">Locked</span>
+                        </div>
+                        <h4 class="font-bold text-sm mb-1" style="color:#ffffff;">AI Analysis</h4>
+                        <p class="text-[11px] mb-3" style="color:#94a8c0;">Sensor fusion</p>
+                        <span id="btn-analysis" class="text-[11px] font-bold" style="color:#94a8c0;">Complete steps 1-3</span>
+                    </div>
+                </div>
+
+                <!-- BOTTOM TEASERS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="glass-card p-5 cursor-pointer" onclick="mediva.nav('progress')">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#d1fae5;"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+                            <h4 class="font-bold text-sm" style="color:#ffffff;">Knee Health Journey</h4>
+                        </div>
+                        <div class="flex gap-1 items-end h-10 mb-2">
+                            <div class="flex-1 rounded-sm" style="height:30%;background:rgba(16, 185, 129, 0.3);"></div>
+                            <div class="flex-1 rounded-sm" style="height:45%;background:#a0bef9;"></div>
+                            <div class="flex-1 rounded-sm" style="height:60%;background:#6d9ef5;"></div>
+                            <div class="flex-1 rounded-sm" style="height:75%;background:#4b83f0;"></div>
+                            <div class="flex-1 rounded-sm" style="height:90%;background:#10b981;"></div>
+                        </div>
+                        <p class="text-[11px]" style="color:#94a8c0;">ROM improved 72 to 81 degrees over 4 weeks</p>
+                    </div>
+                    <div class="glass-card p-5 cursor-pointer" onclick="mediva.nav('rehab')">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:#e0f2fe;"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg></div>
+                            <h4 class="font-bold text-sm" style="color:#ffffff;">Today's Rehab</h4>
+                        </div>
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between"><span class="text-[11px] font-medium" style="color:#5a6c85;">Sit-to-Stand</span><span class="status-pill status-low">Done</span></div>
+                            <div class="flex items-center justify-between"><span class="text-[11px] font-medium" style="color:#5a6c85;">Knee Extension</span><span class="status-pill status-info">Up next</span></div>
+                            <div class="flex items-center justify-between"><span class="text-[11px] font-medium" style="color:#5a6c85;">Leg Raise</span><span class="status-pill status-offline">Pending</span></div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-5 cursor-pointer" onclick="mediva.nav('temperature')" style="background: linear-gradient(135deg, rgba(255,251,235,0.9), rgba(255,237,213,0.6));">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:rgba(251, 191, 36, 0.2);"><svg class="w-5 h-5 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>
+                            <h4 class="font-bold text-sm" style="color:#ffffff;">Knee Temperature</h4>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 text-center">
+                            <div><p class="text-[10px] font-bold mb-0.5" style="color:#94a8c0;">LEFT</p><p class="text-xl font-black" style="color:#b45309;">34.8C</p></div>
+                            <div><p class="text-[10px] font-bold mb-0.5" style="color:#94a8c0;">RIGHT</p><p class="text-xl font-black" style="color:#b45309;">35.1C</p></div>
+                        </div>
+                        <p class="text-[10px] font-semibold mt-2 text-center" style="color:#d97706;">Delta 0.3C - Thermal Risk Marker</p>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW: SCREENING (WIZARD STEP 1) -->
+<!-- VIEW: SCREENING (WIZARD STEP 1) -->
             <div id="view-screening" class="view-section max-w-4xl mx-auto">
                 <div class="mb-8 flex">
                     <div class="wizard-step active"><div class="wizard-icon">1</div><span class="text-xs font-bold text-slate-600">Patient</span></div>
@@ -256,7 +651,7 @@
                     <div class="wizard-step"><div class="wizard-icon">4</div><span class="text-xs font-bold text-slate-400">Analysis</span></div>
                 </div>
 
-                <div class="clinical-card p-8">
+                <div class="glass-card p-8">
                     <h2 class="text-2xl font-display font-bold text-slate-800 mb-1">Clinical Factors</h2>
                     <p class="text-sm text-slate-500 mb-6">Patient demographic and symptomatic data.</p>
                     
@@ -305,7 +700,7 @@
                     </div>
 
                     <div class="pt-6 border-t border-slate-100 flex justify-end gap-3">
-                        <button class="px-8 py-3 bg-mediva-600 text-white rounded-xl font-bold hover:bg-mediva-700 shadow-lg shadow-mediva-500/30 transition-all" onclick="mediva.completeStep('patient')">Save & Continue to Movement Lab →</button>
+                        <button class="px-8 py-3 bg-mediva-600 text-slate-800 rounded-xl font-bold hover:bg-mediva-700 shadow-lg shadow-mediva-500/30 transition-all" onclick="mediva.completeStep('patient')">Save & Continue to Movement Lab →</button>
                     </div>
                 </div>
             </div>
@@ -314,7 +709,7 @@
             <div id="view-movement" class="view-section max-w-6xl mx-auto h-full flex flex-col">
                 <div class="mb-4 shrink-0">
                     <h2 class="text-2xl font-display font-bold text-slate-800">Movement Lab</h2>
-                    <p class="text-sm text-slate-500">Smartphone computer vision analysis. <span class="font-bold text-mediva-600">Reusing MEDIVA MediaPipe Engine.</span></p>
+                    <p class="text-sm text-slate-500">Smartphone computer vision analysis. <span class="font-bold text-mediva-500">Reusing MEDIVA MediaPipe Engine.</span></p>
                 </div>
 
                 <div class="flex gap-4 mb-6 border-b border-slate-200 shrink-0">
@@ -325,11 +720,11 @@
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
                     <div class="lg:col-span-1 flex flex-col gap-4">
-                        <div class="clinical-card p-6">
+                        <div class="glass-card p-6">
                             <h3 class="font-bold text-slate-800 mb-2 text-lg" id="current-exercise-title">Test Protocol (Squat)</h3>
 <div class="flex items-center gap-3 mb-4">
     <span class="text-sm font-black text-mediva-700 bg-mediva-100 border border-mediva-200 px-4 py-1.5 rounded-full">Rep <span id="current-reps">0</span> / <span id="target-reps">5</span></span>
-    <button id="btn-complete-rehab" class="hidden px-4 py-1.5 bg-mediva-600 hover:bg-mediva-500 text-white rounded-full font-bold text-sm shadow-sm">Complete Demo</button>
+    <button id="btn-complete-rehab" class="hidden px-4 py-1.5 bg-mediva-600 hover:bg-mediva-500 text-slate-800 rounded-full font-bold text-sm shadow-sm">Complete Demo</button>
 </div>
                             <ul class="text-sm text-slate-600 space-y-3 mb-6">
                                 <li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-mediva-100 text-mediva-700 flex items-center justify-center font-bold text-xs shrink-0">1</span> Position chair.</li>
@@ -344,7 +739,7 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4 text-center">
                                     <div><p class="text-xs text-slate-500 font-bold uppercase mb-1">Repetitions</p><p id="sts-rep" class="text-3xl font-black text-slate-800">0 / 5</p></div>
-                                    <div><p class="text-xs text-slate-500 font-bold uppercase mb-1">Knee Angle</p><p id="sts-angle" class="text-3xl font-black text-mediva-600">--°</p></div>
+                                    <div><p class="text-xs text-slate-500 font-bold uppercase mb-1">Knee Angle</p><p id="sts-angle" class="text-3xl font-black text-mediva-500">--°</p></div>
                                 </div>
                                 <div class="mt-4 pt-4 border-t border-slate-200">
                                     <div class="flex justify-between text-xs font-bold text-slate-500 uppercase mb-1"><span>Symmetry</span><span id="sts-sym">--%</span></div>
@@ -352,13 +747,13 @@
                                 </div>
                             </div>
                             
-                            <button id="btn-demo-movement" class="w-full py-3 bg-mediva-600 text-white rounded-xl font-bold shadow-lg shadow-mediva-500/30 hover:bg-mediva-700 transition-all" onclick="window.startCameraDemo()">Start Camera & Analysis</button>
+                            <button id="btn-demo-movement" class="w-full py-3 bg-mediva-600 text-slate-800 rounded-xl font-bold shadow-lg shadow-mediva-500/30 hover:bg-mediva-700 transition-all" onclick="window.startCameraDemo()">Start Camera & Analysis</button>
                         </div>
                     </div>
                     
-                    <div class="lg:col-span-2 clinical-card p-4 flex flex-col relative bg-slate-900 border-0">
+                    <div class="lg:col-span-2 glass-card p-4 flex flex-col relative bg-slate-900 border-0">
                         <div class="absolute top-6 left-6 z-10 flex gap-2">
-                            <span class="px-3 py-1 bg-black/50 backdrop-blur border border-white/10 text-white text-xs font-bold rounded-lg flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> REC</span>
+                            <span class="px-3 py-1 bg-black/50 backdrop-blur border border-white/10 text-slate-800 text-xs font-bold rounded-lg flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> REC</span>
                             <span class="px-3 py-1 bg-black/50 backdrop-blur border border-white/10 text-mediva-400 text-xs font-bold rounded-lg">Pose Engine Active</span>
                         </div>
                         <div id="movement-cam-container" class="flex-1 rounded-lg overflow-hidden flex items-center justify-center relative bg-black/50">
@@ -387,7 +782,7 @@
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div class="lg:col-span-1 space-y-4">
-                        <div class="clinical-card p-6 bg-slate-800 border-0 text-white relative overflow-hidden">
+                        <div class="glass-card p-6 bg-slate-800 border-0 text-slate-800 relative overflow-hidden">
                             <div class="absolute -right-4 -bottom-4 w-32 h-32 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
                             <h3 class="font-bold mb-4 text-lg">Device Health</h3>
                             <div class="space-y-4">
@@ -400,22 +795,22 @@
                                     <div class="w-full bg-slate-700 rounded-full h-1.5"><div class="bg-green-400 h-1.5 rounded-full" style="width: 98%"></div></div>
                                 </div>
                                 <div>
-                                    <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">Sampling Rate</span><span class="font-bold text-white">100 Hz</span></div>
+                                    <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">Sampling Rate</span><span class="font-bold text-slate-800">100 Hz</span></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="clinical-card p-6">
+                        <div class="glass-card p-6">
                             <h3 class="font-bold text-slate-800 mb-4">Calibration</h3>
                             <div class="flex items-center gap-3 mb-4">
-                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">✓</div>
+                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0"></div>
                                 <p class="text-sm text-slate-600 font-medium">Neutral pose captured successfully across all nodes.</p>
                             </div>
-                            <button class="w-full py-3 bg-mediva-600 text-white rounded-xl font-bold shadow-lg shadow-mediva-500/30 hover:bg-mediva-700 transition-all" onclick="mediva.completeStep('wearables')">Complete Calibration & Proceed →</button>
+                            <button class="w-full py-3 bg-mediva-600 text-slate-800 rounded-xl font-bold shadow-lg shadow-mediva-500/30 hover:bg-mediva-700 transition-all" onclick="mediva.completeStep('wearables')">Complete Calibration & Proceed →</button>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-2 clinical-card p-6">
+                    <div class="lg:col-span-2 glass-card p-6">
                         <h3 class="font-bold text-slate-800 mb-4 border-b border-slate-100 pb-2 flex items-center gap-2">
                             <div class="w-2 h-2 rounded-full bg-mediva-500 status-pulse"></div> Live IMU Telemetry (Simulated)
                         </h3>
@@ -484,7 +879,7 @@
             <div id="view-analysis" class="view-section max-w-5xl mx-auto">
                 <h2 class="text-2xl font-display font-bold text-slate-800 mb-8 text-center">MEDIVA Multimodal AI Engine</h2>
                 
-                <div class="clinical-card p-10 bg-white shadow-2xl shadow-slate-200/50 relative overflow-hidden">
+                <div class="glass-card p-10 bg-white shadow-2xl shadow-slate-200/50 relative overflow-hidden">
                     <!-- Background decor -->
                     <div class="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full blur-3xl -z-10 transform translate-x-1/2 -translate-y-1/2"></div>
                     <div class="absolute bottom-0 left-0 w-64 h-64 bg-mediva-50 rounded-full blur-3xl -z-10 transform -translate-x-1/2 translate-y-1/2"></div>
@@ -512,7 +907,7 @@
                     
                     <div class="text-center relative z-10">
                         <div class="w-1 h-16 bg-gradient-to-b from-slate-200 to-slate-800 mx-auto mb-4"></div>
-                        <div id="fusion-core" class="inline-block bg-slate-900 text-white p-8 rounded-3xl shadow-2xl relative transition-all duration-1000">
+                        <div id="fusion-core" class="inline-block bg-slate-900 text-slate-800 p-8 rounded-3xl shadow-2xl relative transition-all duration-1000">
                             <div class="absolute inset-0 border-2 border-mediva-500/50 rounded-3xl animate-ping opacity-20"></div>
                             <div class="relative z-10 flex flex-col items-center">
                                 <svg class="w-12 h-12 text-mediva-400 mb-3 animate-spin-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
@@ -524,15 +919,15 @@
                     </div>
                     
                     <div class="mt-8 flex justify-center z-10 relative">
-                        <button id="btn-run-ai" class="px-12 py-5 bg-gradient-to-r from-mediva-600 to-mediva-500 text-white rounded-2xl font-bold text-lg hover:from-mediva-700 hover:to-mediva-600 shadow-xl shadow-mediva-500/40 transform hover:-translate-y-1 transition-all" onclick="mediva.runAI()">Execute Risk Model →</button>
+                        <button id="btn-run-ai" class="px-12 py-5 bg-gradient-to-r from-mediva-600 to-mediva-500 text-slate-800 rounded-2xl font-bold text-lg hover:from-mediva-700 hover:to-mediva-600 shadow-xl shadow-mediva-500/40 transform hover:-translate-y-1 transition-all" onclick="mediva.runAI()">Execute Risk Model →</button>
                     </div>
                 </div>
             </div>
 
             <!-- VIEW: RISK ASSESSMENT -->
             <div id="view-risk" class="view-section max-w-4xl mx-auto">
-                <div class="clinical-card overflow-hidden shadow-2xl">
-                    <div class="bg-gradient-to-br from-yellow-500 to-orange-500 p-10 text-center text-white relative">
+                <div class="glass-card overflow-hidden shadow-2xl">
+                    <div class="bg-gradient-to-br from-yellow-500 to-orange-500 p-10 text-center text-slate-800 relative">
                         <div class="absolute inset-0 bg-black opacity-10"></div>
                         <p class="text-yellow-100 text-xs font-bold tracking-widest uppercase mb-2 relative z-10">OA-Associated Risk Markers</p>
                         <h2 class="text-6xl font-display font-black tracking-tight relative z-10 drop-shadow-md mb-2">MODERATE</h2>
@@ -568,88 +963,129 @@
                         
                         <div class="flex flex-col sm:flex-row gap-4 justify-center pt-6 border-t border-slate-100">
                             <button class="px-8 py-4 bg-white border-2 border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-colors" onclick="mediva.nav('referral')">View Clinical Referral</button>
-                            <button class="px-8 py-4 bg-slate-800 text-white font-bold rounded-xl hover:bg-slate-900 transition-colors shadow-lg shadow-slate-800/20" onclick="mediva.nav('rehab')">Start MEDIVA Rehab Engine →</button>
+                            <button class="px-8 py-4 bg-slate-800 text-slate-800 font-bold rounded-xl hover:bg-slate-900 transition-colors shadow-lg shadow-slate-800/20" onclick="mediva.nav('rehab')">Start MEDIVA Rehab Engine →</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW: REFERRAL & CONFIRMATION -->
-            <div id="view-referral" class="view-section max-w-5xl mx-auto">
-                <h2 class="text-2xl font-display font-bold text-slate-800 mb-6">Tier-2 Clinical Confirmation</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Referral Doc -->
-                    <div class="clinical-card p-8">
-                        <div class="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
-                            <div><h3 class="font-black text-2xl text-slate-800 tracking-tight">MEDIVA</h3><p class="text-[10px] uppercase font-bold text-slate-400 tracking-widest">Screening Report</p></div>
-                            <div class="text-right"><p class="font-bold text-slate-700">ID: MED-001</p><p class="text-xs text-slate-500">Date: 25 Sep 2026</p></div>
+            <!-- VIEW: CLINICAL RADIOLOGY (DARK MODE) -->
+            <div id="view-referral" class="view-section max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-2xl font-display font-black text-slate-800">Radiology Viewer</h2>
+                        <p class="text-sm text-slate-400">MEDIVA Clinician Portal &middot; Patient MED-001</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button class="px-4 py-2 bg-slate-800 text-slate-800 text-xs font-bold rounded-lg border border-slate-700 hover:bg-slate-700">KL Grade: 2</button>
+                        <button class="px-4 py-2 bg-mediva-600 text-slate-800 text-xs font-bold rounded-lg hover:bg-mediva-700">Approve Plan</button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+                    <!-- Tools -->
+                    <div class="lg:col-span-1 space-y-4">
+                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">Annotation Tools</h3>
+                            <div class="grid grid-cols-2 gap-2 mb-4">
+                                <button class="p-2 bg-mediva-900 text-mediva-300 border border-mediva-700 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-mediva-800 transition-colors">
+                                    <span class="text-slate-400"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8h16M4 16h16M8 4v4m8-4v4m-8 8v4m8-4v4"></path></svg></span><span class="text-[9px] font-bold uppercase">Measure</span>
+                                </button>
+                                <button class="p-2 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-slate-700 transition-colors">
+                                    <span class="text-slate-400"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></span><span class="text-[9px] font-bold uppercase">Draw</span>
+                                </button>
+                                <button class="p-2 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-slate-700 transition-colors">
+                                    <span class="text-slate-400"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg></span><span class="text-[9px] font-bold uppercase">Contrast</span>
+                                </button>
+                                <button class="p-2 bg-slate-800 text-slate-400 border border-slate-700 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-slate-700 transition-colors">
+                                    <span class="text-slate-400"><svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"></path></svg></span><span class="text-[9px] font-bold uppercase">Zoom</span>
+                                </button>
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3 mt-6">AI Findings</h3>
+                            <div class="space-y-2">
+                                <div class="bg-slate-800/50 p-2 rounded-lg border border-slate-700/50 flex items-center justify-between">
+                                    <span class="text-[11px] text-slate-300">Medial JSN</span>
+                                    <span class="text-[11px] font-bold text-amber-500">2.1mm</span>
+                                </div>
+                                <div class="bg-slate-800/50 p-2 rounded-lg border border-slate-700/50 flex items-center justify-between">
+                                    <span class="text-[11px] text-slate-300">Osteophytes</span>
+                                    <span class="text-[11px] font-bold text-amber-500">Definite</span>
+                                </div>
+                                <div class="bg-slate-800/50 p-2 rounded-lg border border-slate-700/50 flex items-center justify-between">
+                                    <span class="text-[11px] text-slate-300">Sclerosis</span>
+                                    <span class="text-[11px] font-bold text-slate-500">None</span>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="mb-6">
-                            <p class="text-xs font-bold text-slate-400 uppercase mb-2">Recommendation</p>
-                            <p class="text-slate-800 font-medium">Clinical assessment and radiographic confirmation recommended due to moderate functional OA risk markers.</p>
-                        </div>
-                        
-                        <ul class="space-y-3 mb-8">
-                            <li class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100"><span class="text-mediva-500 font-bold">✓</span> <span class="text-sm font-semibold text-slate-700">Physiotherapy evaluation</span></li>
-                            <li class="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100"><span class="text-mediva-500 font-bold">✓</span> <span class="text-sm font-semibold text-slate-700">Monitored Rehabilitation</span></li>
-                        </ul>
-                        
-                        <button class="w-full py-3 bg-white border-2 border-slate-200 rounded-xl font-bold text-slate-600 hover:bg-slate-50">Generate PDF Report</button>
                     </div>
                     
-                    <!-- X-Ray Module -->
-                    <div class="clinical-card p-8 bg-slate-900 text-white border-0 shadow-2xl relative overflow-hidden">
-                        <div class="absolute -right-12 -top-12 w-48 h-48 bg-mediva-500 rounded-full blur-3xl opacity-10"></div>
-                        <h3 class="font-bold text-xl text-white mb-2 flex items-center gap-2">X-Ray AI Analysis</h3>
-                        <p class="text-xs text-mediva-400 font-bold uppercase tracking-wider mb-6">Proposed Module / Demo</p>
-                        
-                        <p class="text-sm text-slate-300 mb-6 leading-relaxed">Structural analysis for KL Grading, Joint-space narrowing, and Osteophytes. Validates the Tier-1 movement screening.</p>
-                        
-                        <div class="border-2 border-dashed border-slate-600 rounded-xl p-10 text-center bg-slate-800/50 hover:bg-slate-800 transition-colors cursor-pointer group">
-                            <svg class="w-12 h-12 text-slate-500 mx-auto mb-3 group-hover:text-mediva-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                            <p class="text-slate-300 font-bold">Upload Radiograph</p>
-                            <p class="text-xs text-slate-500 mt-1">Simulated Prototype</p>
+                    <!-- Viewer -->
+                    <div class="lg:col-span-3">
+                        <div class="bg-black rounded-2xl border border-slate-800 overflow-hidden relative flex items-center justify-center" style="min-height: 500px;">
+                            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-800 to-black opacity-50"></div>
+                            
+                            <!-- Simulated X-Ray with overlay -->
+                            <div class="relative z-10 w-full max-w-md aspect-[3/4] border border-slate-700 mx-auto bg-slate-900 overflow-hidden">
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <span class="text-slate-600 font-bold tracking-widest uppercase opacity-30 rotate-[-45deg] text-4xl">Demo Radiograph</span>
+                                </div>
+                                
+                                <!-- AI Overlays -->
+                                <div class="absolute top-[40%] left-[30%] w-[10%] h-[5%] border-2 border-red-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                                <div class="absolute top-[38%] left-[25%] text-[9px] bg-red-500 text-slate-800 px-1 py-0.5 rounded font-bold">JSN</div>
+                                
+                                <div class="absolute top-[50%] right-[30%] w-[8%] h-[8%] border-2 border-yellow-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(234,179,8,0.5)]"></div>
+                                <div class="absolute top-[48%] right-[20%] text-[9px] bg-yellow-500 text-slate-800 px-1 py-0.5 rounded font-bold">Osteophyte</div>
+                            </div>
+                            
+                            <!-- Viewer Controls -->
+                            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-900/80 backdrop-blur border border-slate-700 p-2 rounded-full flex gap-2">
+                                <button class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700">⏮</button>
+                                <button class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700">◀</button>
+                                <span class="px-3 text-xs font-bold text-slate-400 flex items-center">Image 1 / 4</span>
+                                <button class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700">▶</button>
+                                <button class="w-8 h-8 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700">⏭</button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW: PROGRESS & ANALYTICS -->
+<!-- VIEW: PROGRESS & ANALYTICS -->
             <div id="view-progress" class="view-section max-w-5xl mx-auto">
                 <div class="flex justify-between items-end mb-8">
                     <div>
                         <h2 class="text-2xl font-display font-bold text-slate-800">Patient Progress</h2>
                         <p class="text-sm text-slate-500 font-medium">Longitudinal OA Monitoring</p>
                     </div>
-                    <button class="px-5 py-2.5 bg-mediva-600 hover:bg-mediva-700 text-white rounded-xl font-bold shadow-md transition-all">Schedule Re-Screening</button>
+                    <button class="btn-primary">Schedule Re-Screening</button>
                 </div>
                 
                 <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Baseline vs Current (Demo Data)</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div class="clinical-card p-6 border-t-4 border-t-mediva-500">
+                    <div class="glass-card p-6 border-t-4 border-t-mediva-500">
                         <p class="text-xs text-slate-500 font-bold uppercase mb-2">Knee ROM</p>
                         <p class="text-3xl font-black text-slate-800 mb-1">81°</p>
                         <p class="text-sm text-green-600 font-bold flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg> Baseline: 72°</p>
                     </div>
-                    <div class="clinical-card p-6 border-t-4 border-t-mediva-500">
+                    <div class="glass-card p-6 border-t-4 border-t-mediva-500">
                         <p class="text-xs text-slate-500 font-bold uppercase mb-2">STS Time</p>
                         <p class="text-3xl font-black text-slate-800 mb-1">9.6s</p>
                         <p class="text-sm text-green-600 font-bold flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg> Baseline: 11.2s</p>
                     </div>
-                    <div class="clinical-card p-6 border-t-4 border-t-blue-500">
+                    <div class="glass-card p-6 border-t-4 border-t-blue-500">
                         <p class="text-xs text-slate-500 font-bold uppercase mb-2">Symmetry</p>
                         <p class="text-3xl font-black text-slate-800 mb-1">86%</p>
                         <p class="text-sm text-green-600 font-bold flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg> Baseline: 74%</p>
                     </div>
-                    <div class="clinical-card p-6 border-t-4 border-t-blue-500 bg-blue-50">
+                    <div class="glass-card p-6 border-t-4 border-t-blue-500 bg-blue-50">
                         <p class="text-xs text-blue-800 font-bold uppercase mb-2">Rehab Adherence</p>
                         <p class="text-3xl font-black text-blue-900 mb-1">92%</p>
                         <p class="text-sm text-blue-600 font-bold">Last 4 weeks</p>
                     </div>
                 </div>
                 
-                <div class="clinical-card p-6">
+                <div class="glass-card p-6">
                     <h3 class="font-bold text-slate-800 mb-6">Recovery Trend</h3>
                     <div class="h-64 flex items-end gap-2 pt-4 px-2 border-b border-l border-slate-200 relative">
                         <!-- Mock chart bars -->
@@ -669,7 +1105,7 @@
             <!-- VIEW: CLINICIAN DASHBOARD -->
             <div id="view-clinician" class="view-section max-w-6xl mx-auto">
                 <h2 class="text-2xl font-display font-bold text-slate-800 mb-6">Clinician Portal</h2>
-                <div class="clinical-card overflow-hidden">
+                <div class="glass-card overflow-hidden">
                     <div class="bg-slate-50 p-4 border-b border-slate-200 flex gap-4">
                         <input type="text" placeholder="Search patients..." class="px-4 py-2 border border-slate-200 rounded-lg text-sm flex-1 outline-none focus:border-mediva-500">
                         <select class="px-4 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-mediva-500"><option>All Risks</option><option>High</option><option>Moderate</option></select>
@@ -684,7 +1120,7 @@
                                 <td class="p-4"><span class="text-yellow-600 font-bold">Moderate</span></td>
                                 <td class="p-4">81°</td>
                                 <td class="p-4">92%</td>
-                                <td class="p-4"><button class="text-mediva-600 font-bold hover:text-mediva-700" onclick="mediva.nav('dashboard')">View Profile</button></td>
+                                <td class="p-4"><button class="text-mediva-500 font-bold hover:text-mediva-700" onclick="mediva.nav('dashboard')">View Profile</button></td>
                             </tr>
                             <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="p-4">MED-002</td>
@@ -702,20 +1138,20 @@
             <div id="view-status" class="view-section max-w-4xl mx-auto">
                 <h2 class="text-2xl font-display font-bold text-slate-800 mb-6">MEDIVA System Status</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div class="clinical-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Camera Interface</span></div><span class="text-xs font-bold text-slate-400">Ready</span></div>
-                    <div class="clinical-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">MediaPipe Engine</span></div><span class="text-xs font-bold text-slate-400">Ready</span></div>
-                    <div class="clinical-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Local AI Core</span></div><span class="text-xs font-bold text-slate-400">Ready</span></div>
-                    <div class="clinical-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Wearable Gateway</span></div><span class="text-xs font-bold text-slate-400">Ready (Demo Mode)</span></div>
-                    <div class="clinical-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Offline Storage</span></div><span class="text-xs font-bold text-slate-400">Active</span></div>
-                    <div class="clinical-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-yellow-500"></span><span class="font-bold text-slate-700">Cloud Sync</span></div><span class="text-xs font-bold text-slate-400">Waiting (Offline)</span></div>
+                    <div class="glass-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Camera Interface</span></div><span class="text-xs font-bold text-slate-400">Ready</span></div>
+                    <div class="glass-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">MediaPipe Engine</span></div><span class="text-xs font-bold text-slate-400">Ready</span></div>
+                    <div class="glass-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Local AI Core</span></div><span class="text-xs font-bold text-slate-400">Ready</span></div>
+                    <div class="glass-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Wearable Gateway</span></div><span class="text-xs font-bold text-slate-400">Ready (Demo Mode)</span></div>
+                    <div class="glass-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-green-500"></span><span class="font-bold text-slate-700">Offline Storage</span></div><span class="text-xs font-bold text-slate-400">Active</span></div>
+                    <div class="glass-card p-5 flex justify-between items-center"><div class="flex items-center gap-3"><span class="w-3 h-3 rounded-full bg-yellow-500"></span><span class="font-bold text-slate-700">Cloud Sync</span></div><span class="text-xs font-bold text-slate-400">Waiting (Offline)</span></div>
                 </div>
                 
                 <h3 class="font-bold text-slate-800 mb-4">Privacy & Data</h3>
-                <div class="clinical-card p-6 bg-slate-50 border-slate-200">
+                <div class="glass-card p-6 bg-slate-50 border-slate-200">
                     <ul class="space-y-4 text-sm text-slate-600 font-medium">
-                        <li class="flex items-center gap-3"><span class="text-mediva-500">✓</span> Raw video processing remains ON-DEVICE.</li>
-                        <li class="flex items-center gap-3"><span class="text-mediva-500">✓</span> Data minimization protocols enabled.</li>
-                        <li class="flex items-center gap-3"><span class="text-mediva-500">✓</span> Local storage encryption enabled (Prototype).</li>
+                        <li class="flex items-center gap-3"><span class="text-mediva-500"></span> Raw video processing remains ON-DEVICE.</li>
+                        <li class="flex items-center gap-3"><span class="text-mediva-500"></span> Data minimization protocols enabled.</li>
+                        <li class="flex items-center gap-3"><span class="text-mediva-500"></span> Local storage encryption enabled (Prototype).</li>
                     </ul>
                 </div>
             </div>
@@ -723,14 +1159,206 @@
         </div>
     </main>
 
-    <!-- Voice Assistant Overlay -->
-    <div id="voice-overlay" class="hidden fixed bottom-6 right-6 w-80 bg-slate-900 text-white rounded-2xl shadow-2xl p-4 border border-slate-700 z-50">
+    
+            <!-- VIEW: KNEE TEMPERATURE -->
+            <div id="view-temperature" class="view-section max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-2xl font-display font-black" style="color:#ffffff;">Knee Temperature</h2>
+                        <p class="text-sm" style="color:#94a8c0;">Bilateral thermal risk marker assessment.</p>
+                    </div>
+                    <span class="demo-banner">Demo / Simulated</span>
+                </div>
+                <div class="glass-card p-4 mb-5" style="background: linear-gradient(135deg, rgba(255,251,235,0.9), rgba(254,243,199,0.6)); border-color: rgba(251, 191, 36, 0.3);">
+                    <div class="flex items-start gap-3">
+                        <span class="text-slate-400"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg></span>
+                        <div>
+                            <p class="font-bold text-sm mb-1" style="color:#78350f;">Clinical Context</p>
+                            <p class="text-xs leading-relaxed" style="color:#92400e;">Knee surface temperature is used as a <strong>supporting thermal risk marker only</strong>. Elevated temperature or bilateral asymmetry may indicate inflammation but does not diagnose OA. Clinical confirmation is required.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                    <div class="glass-card p-6 text-center">
+                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3" style="background:rgba(251, 191, 36, 0.2); border:1px solid rgba(251, 191, 36, 0.3);"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
+                        <p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:#94a8c0;">Left Knee</p>
+                        <p class="text-6xl font-display font-black leading-none mb-2" style="color:#b45309;">34.8&deg;</p>
+                        <p class="text-xs font-medium mb-3" style="color:#94a8c0;">Celsius &middot; Surface IR</p>
+                        <span class="status-pill status-low">Within normal range</span>
+                    </div>
+                    <div class="glass-card p-6 text-center" style="background: linear-gradient(135deg, rgba(255,245,235,0.9), rgba(255,237,213,0.6));">
+                        <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3" style="background:#fed7aa; border:1px solid #fdba74;"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
+                        <p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:#94a8c0;">Right Knee</p>
+                        <p class="text-6xl font-display font-black leading-none mb-2" style="color:#c2410c;">35.1&deg;</p>
+                        <p class="text-xs font-medium mb-3" style="color:#94a8c0;">Celsius &middot; Surface IR</p>
+                        <span class="status-pill status-mod">Slightly elevated</span>
+                    </div>
+                </div>
+                <div class="glass-card p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
+                        <div class="text-center"><p class="text-[10px] font-bold uppercase mb-1" style="color:#94a8c0;">Temperature Difference</p><p class="text-4xl font-display font-black" style="color:#b45309;">&#916; 0.3&deg;</p><p class="text-xs mt-1" style="color:#94a8c0;">L vs R</p></div>
+                        <div class="text-center"><p class="text-[10px] font-bold uppercase mb-1" style="color:#94a8c0;">Observed Range</p><p class="text-2xl font-bold" style="color:#ffffff;">34.8 &ndash; 35.1&deg;C</p><p class="text-xs mt-1" style="color:#94a8c0;">Normal: 33&ndash;36&deg;C</p></div>
+                        <div class="text-center"><p class="text-[10px] font-bold uppercase mb-1" style="color:#94a8c0;">Thermal Risk Marker</p><span class="status-pill status-mod">LOW&ndash;MODERATE</span><p class="text-xs mt-2" style="color:#94a8c0;">Supporting indicator</p></div>
+                    </div>
+                    <div class="pt-4" style="border-top:1px solid rgba(255, 255, 255, 0.1);">
+                        <p class="text-[10px] font-bold uppercase tracking-wide mb-2" style="color:#94a8c0;">Observed Insight</p>
+                        <p class="text-sm leading-relaxed" style="color:#5a6c85;">The right knee shows a marginally elevated surface temperature (&#916; 0.3&deg;C). This minor asymmetry is noted as a supporting thermal risk marker. Bilateral asymmetry &gt; 1&deg;C would warrant clinical investigation.</p>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button class="btn-primary" onclick="mediva.nav('analysis')">Proceed to AI Analysis &#8594;</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: REHABILITATION -->
+            <div id="view-rehab" class="view-section max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-2xl font-display font-black" style="color:#ffffff;">Rehabilitation</h2>
+                        <p class="text-sm" style="color:#94a8c0;">OA-focused exercise programme with AI form guidance.</p>
+                    </div>
+                    <span class="demo-banner">OA Rehab Protocol</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="exercise-card cursor-pointer" onclick="document.getElementById('rehab-exercise-title').textContent='Sit-to-Stand'">
+                        <div class="h-28 flex items-center justify-center text-4xl" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), #dbeafe);"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m8 0h1M7 19h10"></path></svg></div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-1"><h4 class="font-bold text-sm" style="color:#ffffff;">Sit-to-Stand</h4><span class="status-pill status-low">Done</span></div>
+                            <p class="text-[11px] mb-2" style="color:#94a8c0;">3 sets x 10 reps</p>
+                            <div class="flex items-center gap-1"><div class="flex-1 h-1 rounded-full" style="background:#bbf7d0;"><div class="h-1 rounded-full" style="background:#22c55e;width:100%;"></div></div><span class="text-[9px] font-bold" style="color:#16a34a;">100%</span></div>
+                        </div>
+                    </div>
+                    <div class="exercise-card cursor-pointer" style="border-color:#a0bef9;" onclick="document.getElementById('rehab-exercise-title').textContent='Seated Knee Extension'">
+                        <div class="h-28 flex items-center justify-center text-4xl" style="background: linear-gradient(135deg, #eff6ff, #dbeafe);"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-1"><h4 class="font-bold text-sm" style="color:#ffffff;">Seated Knee Extension</h4><span class="status-pill status-info">Up Next</span></div>
+                            <p class="text-[11px] mb-2" style="color:#94a8c0;">2 sets x 15 reps</p>
+                            <div class="flex items-center gap-1"><div class="flex-1 h-1 rounded-full" style="background:rgba(255, 255, 255, 0.05);"><div class="h-1 rounded-full" style="background:#4b83f0;width:0%;"></div></div><span class="text-[9px] font-bold" style="color:#94a8c0;">0%</span></div>
+                        </div>
+                    </div>
+                    <div class="exercise-card cursor-pointer" onclick="document.getElementById('rehab-exercise-title').textContent='Straight Leg Raise'">
+                        <div class="h-28 flex items-center justify-center text-4xl" style="background: linear-gradient(135deg, #f0f9ff, #e0f2fe);"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path></svg></div>
+                        <div class="p-4">
+                            <div class="flex items-center justify-between mb-1"><h4 class="font-bold text-sm" style="color:#ffffff;">Straight Leg Raise</h4><span class="status-pill status-offline">Pending</span></div>
+                            <p class="text-[11px] mb-2" style="color:#94a8c0;">3 sets x 12 reps</p>
+                            <div class="flex items-center gap-1"><div class="flex-1 h-1 rounded-full" style="background:rgba(255, 255, 255, 0.05);"><div class="h-1 rounded-full" style="background:#6d9ef5;width:0%;"></div></div><span class="text-[9px] font-bold" style="color:#94a8c0;">0%</span></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Active Exercise -->
+                <div class="glass-card p-6">
+                    <div class="flex items-center gap-3 mb-5 pb-4" style="border-bottom:1px solid rgba(255, 255, 255, 0.1);">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style="background:rgba(16, 185, 129, 0.15); border:1px solid rgba(16, 185, 129, 0.3);"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></div>
+                        <div>
+                            <h3 class="font-bold" id="rehab-exercise-title" style="color:#ffffff;">Seated Knee Extension</h3>
+                            <p class="text-xs" style="color:#94a8c0;">Set 1 of 2 &middot; AI form guidance active</p>
+                        </div>
+                        <div class="ml-auto"><span class="demo-banner">Camera AI</span></div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                        <div class="space-y-4">
+                            <div class="rounded-xl p-4 text-center" style="background:rgba(255, 255, 255, 0.05); border:1px solid rgba(255, 255, 255, 0.1);">
+                                <p class="text-[10px] font-bold uppercase mb-2" style="color:#94a8c0;">Repetitions</p>
+                                <p class="text-5xl font-black leading-none" style="color:#10b981;"><span id="rehab-reps">0</span></p>
+                                <p class="text-sm mt-1" style="color:#94a8c0;">/ 15</p>
+                            </div>
+                            <div class="p-4 rounded-xl" style="background:rgba(16, 185, 129, 0.15); border:1px solid rgba(16, 185, 129, 0.3);">
+                                <p class="text-xs font-bold mb-1" style="color:#047857;">AI Guidance</p>
+                                <p class="text-sm font-medium" style="color:#1e3a8a;">Slowly extend your right knee until straight. Hold 2 seconds, then lower.</p>
+                            </div>
+                            <button class="btn-primary w-full justify-center" style="width:100%; display:flex;" onclick="mediva.runRehabDemo()">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.879V15.12a1 1 0 01-1.447.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                Start Exercise
+                            </button>
+                        </div>
+                        <div class="lg:col-span-2 rounded-2xl overflow-hidden relative" style="min-height: 240px; background: #0a0f1a;">
+                            <video id="rehab-demo-video" class="w-full h-full object-cover transform -scale-x-100" autoplay muted playsinline style="display:block;"></video>
+                            <div class="absolute top-4 left-4 flex gap-2">
+                                <span class="px-2 py-1 text-xs font-bold text-slate-800 rounded flex items-center gap-1" style="background:rgba(0,0,0,0.6);">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>LIVE
+                                </span>
+                                <span class="px-2 py-1 text-xs font-bold rounded" style="background:rgba(0,0,0,0.6); color:#6d9ef5;">MEDIVA REHAB</span>
+                            </div>
+                            <div class="absolute inset-0 flex items-center justify-center" id="rehab-cam-placeholder">
+                                <p class="text-sm font-medium" style="color:rgba(255,255,255,0.3);">Start exercise to activate camera</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: REPORTS -->
+            <div id="view-reports" class="view-section max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-5">
+                    <div>
+                        <h2 class="text-2xl font-display font-black" style="color:#ffffff;">Clinical Report</h2>
+                        <p class="text-sm" style="color:#94a8c0;">MEDIVA Knee Health Report &mdash; Patient MED-001</p>
+                    </div>
+                    <button class="btn-primary">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        Export PDF
+                    </button>
+                </div>
+                <div class="glass-card p-8">
+                    <div class="flex justify-between items-start pb-6 mb-6" style="border-bottom:2px solid rgba(255, 255, 255, 0.1);">
+                        <div>
+                            <h1 class="text-3xl font-display font-black" style="color:#047857;">MEDIVA</h1>
+                            <p class="text-[10px] font-bold uppercase tracking-widest" style="color:#94a8c0;">Knee Health Screening Report</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold" style="color:#ffffff;">MED-001</p>
+                            <p class="text-xs" style="color:#94a8c0;">25 Sep 2026</p>
+                            <span class="status-pill status-demo mt-1 inline-flex">Demo / Prototype</span>
+                        </div>
+                    </div>
+                    <div class="report-section">
+                        <h3 class="font-bold text-sm uppercase tracking-wide mb-3" style="color:#ffffff;">Patient Information</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div><p class="text-[10px] font-bold uppercase" style="color:#94a8c0;">Patient</p><p class="font-semibold text-sm" style="color:#ffffff;">Demo Patient</p></div>
+                            <div><p class="text-[10px] font-bold uppercase" style="color:#94a8c0;">Age / Sex</p><p class="font-semibold text-sm" style="color:#ffffff;">58 / Female</p></div>
+                            <div><p class="text-[10px] font-bold uppercase" style="color:#94a8c0;">BMI</p><p class="font-semibold text-sm" style="color:#ffffff;">28.5</p></div>
+                            <div><p class="text-[10px] font-bold uppercase" style="color:#94a8c0;">Prev. Injury</p><p class="font-semibold text-sm" style="color:#ffffff;">Right Knee</p></div>
+                        </div>
+                    </div>
+                    <div class="report-section">
+                        <h3 class="font-bold text-sm uppercase tracking-wide mb-3" style="color:#ffffff;">AI-Assisted Screening Summary</h3>
+                        <div class="flex items-center gap-4 p-4 rounded-xl mb-3" style="background:rgba(251, 191, 36, 0.1); border:1px solid rgba(251, 191, 36, 0.3);">
+                            <div class="text-center"><p class="text-[10px] font-bold uppercase" style="color:#d97706;">Risk Level</p><p class="text-2xl font-black" style="color:#78350f;">MODERATE</p></div>
+                            <div class="flex-1 pl-4" style="border-left:1px solid rgba(251, 191, 36, 0.3);"><p class="text-xs leading-relaxed" style="color:#92400e;">Multimodal sensor fusion detected moderate OA-associated risk markers. Camera kinematics showed reduced knee ROM and mild L-R asymmetry. Thermal marker within observed range.</p></div>
+                        </div>
+                        <p class="text-[11px] italic" style="color:#94a8c0;"><svg class="w-6 h-6 text-current" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg> This report is from a prototype screening tool and is not a clinical diagnosis. Results should be reviewed by a qualified clinician.</p>
+                    </div>
+                    <div class="report-section">
+                        <h3 class="font-bold text-sm uppercase tracking-wide mb-3" style="color:#ffffff;">Movement Findings</h3>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="text-center p-3 rounded-xl" style="background:rgba(255, 255, 255, 0.05);"><p class="text-[9px] uppercase font-bold" style="color:#94a8c0;">Knee ROM</p><p class="text-xl font-black" style="color:#ffffff;">81&deg;</p></div>
+                            <div class="text-center p-3 rounded-xl" style="background:rgba(255, 255, 255, 0.05);"><p class="text-[9px] uppercase font-bold" style="color:#94a8c0;">STS Time</p><p class="text-xl font-black" style="color:#ffffff;">9.6s</p></div>
+                            <div class="text-center p-3 rounded-xl" style="background:rgba(255, 255, 255, 0.05);"><p class="text-[9px] uppercase font-bold" style="color:#94a8c0;">Symmetry</p><p class="text-xl font-black" style="color:#ffffff;">86%</p></div>
+                        </div>
+                    </div>
+                    <div class="report-section">
+                        <h3 class="font-bold text-sm uppercase tracking-wide mb-3" style="color:#ffffff;">Rehabilitation Plan</h3>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-2 rounded-lg" style="background:rgba(255, 255, 255, 0.05);"><span class="text-xs font-semibold" style="color:#ffffff;">Sit-to-Stand</span><span class="text-xs" style="color:#94a8c0;">3 x 10 reps</span></div>
+                            <div class="flex items-center justify-between p-2 rounded-lg" style="background:rgba(255, 255, 255, 0.05);"><span class="text-xs font-semibold" style="color:#ffffff;">Seated Knee Extension</span><span class="text-xs" style="color:#94a8c0;">2 x 15 reps</span></div>
+                            <div class="flex items-center justify-between p-2 rounded-lg" style="background:rgba(255, 255, 255, 0.05);"><span class="text-xs font-semibold" style="color:#ffffff;">Straight Leg Raise</span><span class="text-xs" style="color:#94a8c0;">3 x 12 reps</span></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm uppercase tracking-wide mb-3" style="color:#ffffff;">Clinician Notes</h3>
+                        <textarea rows="3" placeholder="Add clinical notes here..." class="form-input resize-none"></textarea>
+                    </div>
+                </div>
+            </div>
+
+<!-- Voice Assistant Overlay -->
+    <div id="voice-overlay" class="hidden fixed bottom-6 right-6 w-80 bg-slate-900 text-slate-800 rounded-2xl shadow-2xl p-4 border border-slate-700 z-50">
         <div class="flex justify-between items-center mb-4">
             <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-mediva-400 status-pulse"></div>
                 <h4 class="font-bold text-sm">MEDIVA Voice Guide</h4>
             </div>
-            <button onclick="mediva.toggleVoiceAssist()" class="text-slate-400 hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <button onclick="mediva.toggleVoiceAssist()" class="text-slate-400 hover:text-slate-800"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
         </div>
         <div id="voice-text" class="bg-slate-800 p-4 rounded-xl text-sm font-medium text-slate-200 italic mb-3 min-h-[70px] flex items-center justify-center text-center leading-relaxed">
             "Welcome to MEDIVA. Let's begin the screening process."
@@ -744,20 +1372,20 @@
     </div>
 
     <!-- Chat Button & Modal -->
-    <button id="chat-toggle-btn" class="fixed bottom-6 left-6 bg-mediva-600 hover:bg-mediva-500 text-white p-4 rounded-full shadow-2xl transition-all transform hover:scale-110 z-50" >
+    <button id="chat-toggle-btn" class="fixed bottom-6 left-6 bg-mediva-600 hover:bg-mediva-500 text-slate-800 p-4 rounded-full shadow-2xl transition-all transform hover:scale-110 z-50" >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
     </button>
     <div id="chat-modal" class="hidden fixed bottom-24 left-6 w-80 md:w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden h-[500px]">
         <div class="bg-mediva-50 p-4 flex justify-between items-center border-b border-mediva-100">
             <h3 class="font-bold text-mediva-700">🤖 AI Assistant</h3>
-            <button onclick="document.getElementById('chat-modal').classList.add('hidden')" class="text-mediva-400 hover:text-mediva-600">✕</button>
+            <button onclick="document.getElementById('chat-modal').classList.add('hidden')" class="text-mediva-400 hover:text-mediva-500"></button>
         </div>
         <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50">
             <div class="text-center text-slate-400 text-sm mt-4">Ask a question about the screening process...</div>
         </div>
         <div class="p-3 bg-white border-t border-slate-200 flex gap-2">
             <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 bg-slate-50 text-slate-700 rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-mediva-500 border border-slate-200">
-            <button id="send-msg-btn" class="bg-mediva-600 hover:bg-mediva-500 text-white p-2 rounded-xl transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg></button>
+            <button id="send-msg-btn" class="bg-mediva-600 hover:bg-mediva-500 text-slate-800 p-2 rounded-xl transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg></button>
         </div>
     </div>
 
@@ -785,12 +1413,126 @@
                 <label class="block text-sm font-bold text-slate-600 mb-2">Notes (optional)</label>
                 <textarea rows="2" placeholder="Any discomfort or comments..." class="w-full bg-slate-50 p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-mediva-500 outline-none text-slate-700 resize-none"></textarea>
             </div>
-            <button class="w-full bg-mediva-600 hover:bg-mediva-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all" onclick="document.getElementById('feedback-modal').classList.add('hidden');">Submit Feedback</button>
+            <button class="w-full bg-mediva-600 hover:bg-mediva-700 text-slate-800 font-bold py-3 rounded-xl shadow-lg transition-all" onclick="document.getElementById('feedback-modal').classList.add('hidden');">Submit Feedback</button>
             <button class="w-full mt-3 text-slate-400 hover:text-slate-600 text-sm font-bold transition-colors" onclick="document.getElementById('feedback-modal').classList.add('hidden')">Skip</button>
         </div>
     </div>
 
-    <!-- Core App JS -->
+    
+    <!-- MOBILE BOTTOM NAV -->
+    <div class="mobile-nav md:hidden" id="mobile-bottom-nav">
+        <div class="mobile-nav-item active" id="mob-bottom-dashboard" onclick="mediva.nav('dashboard'); setMobileActive('dashboard')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Home</span>
+        </div>
+        <div class="mobile-nav-item" id="mob-bottom-screening" onclick="mediva.nav('screening'); setMobileActive('screening')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+            <span>Screen</span>
+        </div>
+        <div class="mobile-nav-item" id="mob-bottom-movement" onclick="mediva.nav('movement'); setMobileActive('movement')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.069A1 1 0 0121 8.879V15.12a1 1 0 01-1.447.9L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span>Camera</span>
+        </div>
+        <div class="mobile-nav-item" id="mob-bottom-risk" onclick="mediva.nav('risk'); setMobileActive('risk')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Risk</span>
+        </div>
+        <div class="mobile-nav-item" id="mob-bottom-rehab" onclick="mediva.nav('rehab'); setMobileActive('rehab')">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            <span>Rehab</span>
+        </div>
+    </div>
+
+    <script>
+        // Mobile helpers
+        function setMobileActive(view) {
+            document.querySelectorAll('.mobile-nav-item').forEach(function(el) { el.classList.remove('active'); });
+            var item = document.getElementById('mob-bottom-' + view);
+            if (item) item.classList.add('active');
+        }
+
+        // Chat toggle
+        var chatBtn = document.getElementById('chat-toggle-btn');
+        if (chatBtn) chatBtn.addEventListener('click', function() {
+            document.getElementById('chat-modal').classList.toggle('hidden');
+        });
+
+        // Nav patch to also update mobile nav and sidebar active states
+        function patchNav(origNav) {
+            return function(viewId) {
+                origNav(viewId);
+                setMobileActive(viewId);
+                // Update sidebar active
+                document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+                var sidebarItem = document.getElementById('nav-' + viewId);
+                if (sidebarItem) sidebarItem.classList.add('active');
+                // Pathway node updates
+                if (typeof mediva.updateDashboardUI === 'function') mediva.updateDashboardUI();
+            };
+        }
+
+        // Init charts
+        function initCharts() {
+            if (typeof Chart === 'undefined') return;
+            var romCtx = document.getElementById('rom-chart');
+            if (romCtx) {
+                new Chart(romCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Wk 1','Wk 2','Wk 3','Wk 4','Now'],
+                        datasets: [{ label: 'ROM (deg)', data: [72,75,77,79,81], borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', borderWidth: 2.5, pointBackgroundColor: '#10b981', pointRadius: 4, tension: 0.4, fill: true }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Inter' }, color: '#94a8c0' } },
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { font: { size: 10, family: 'Inter' }, color: '#94a8c0' }, suggestedMin: 65, suggestedMax: 90 }
+                        }
+                    }
+                });
+            }
+            var painCtx = document.getElementById('pain-chart');
+            if (painCtx) {
+                new Chart(painCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Wk 1','Wk 2','Wk 3','Wk 4','Now'],
+                        datasets: [{ label: 'Pain', data: [6,5,4,3,2], borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.08)', borderWidth: 2.5, pointBackgroundColor: '#f59e0b', pointRadius: 4, tension: 0.4, fill: true }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Inter' }, color: '#94a8c0' } },
+                            y: { grid: { color: 'rgba(255, 255, 255, 0.1)' }, ticks: { font: { size: 10, family: 'Inter' }, color: '#94a8c0' }, suggestedMin: 0, suggestedMax: 10 }
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            mediva.init();
+            initCharts();
+
+            // Patch nav after init
+            if (mediva && mediva.nav) {
+                mediva.nav = patchNav(mediva.nav.bind(mediva));
+            }
+
+            // Language selector
+            var langSel = document.getElementById('lang-selector');
+            if (langSel) {
+                langSel.addEventListener('change', function(e) {
+                    mediva.state.language = e.target.value;
+                    var gg = document.querySelector('.goog-te-combo');
+                    if (gg) { gg.value = e.target.value; gg.dispatchEvent(new Event('change')); }
+                });
+            }
+        });
+    </script>
+<!-- Core App JS -->
     <script src="js/mediva-app.js"></script>
     <script type="module" src="js/mediva-integration.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
