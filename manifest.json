@@ -1,6 +1,6 @@
 {
-    "name": "MediTask - Rehabilitation Companion",
-    "short_name": "MediTask",
+    "name": "MEDIVA - Rehabilitation Companion",
+    "short_name": "MEDIVA",
     "description": "AI-powered rehabilitation and wellness tracking application",
     "start_url": "/",
     "display": "standalone",

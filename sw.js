@@ -1,5 +1,5 @@
-// MediTask Service Worker for offline support and caching
-const CACHE_NAME = 'meditask-v1';
+// MEDIVA Service Worker for offline support and caching
+const CACHE_NAME = 'MEDIVA-v1';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -19,7 +19,7 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('MediTask: Caching app shell');
+                console.log('MEDIVA: Caching app shell');
                 return cache.addAll(urlsToCache);
             })
             .catch(err => console.log('Cache failed:', err))
@@ -34,7 +34,7 @@ self.addEventListener('activate', event => {
             return Promise.all(
                 cacheNames.map(cacheName => {
                     if (cacheName !== CACHE_NAME) {
-                        console.log('MediTask: Removing old cache', cacheName);
+                        console.log('MEDIVA: Removing old cache', cacheName);
                         return caches.delete(cacheName);
                     }
                 })

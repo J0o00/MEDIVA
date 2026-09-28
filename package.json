@@ -1,7 +1,7 @@
 {
-  "name": "meditask-webapp",
+  "name": "MEDIVA-webapp",
   "version": "1.0.0",
-  "description": "MediTask Web Application - Rehabilitation & Wellness",
+  "description": "MEDIVA Web Application - Rehabilitation & Wellness",
   "scripts": {
     "start": "npx serve ."
   },

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MEDIVA Demo Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: white; }
+        .glass { background: rgba(31, 41, 55, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-strong { background: rgba(31, 41, 55, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); }
+        .glow-teal { box-shadow: 0 0 20px rgba(20, 184, 166, 0.3); }
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen p-4 antialiased">
+    <div id="app-container" class="w-full max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="glass-strong rounded-2xl shadow-xl p-4 mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-teal-400">🏋️ MEDIVA</h1>
+                <p class="text-xs text-gray-400">AI-Assisted OA Screening</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-sm text-gray-300">
+                    <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                    <span id="sync-status">Saved locally</span>
+                    <span class="text-xs border border-gray-600 px-2 py-1 rounded">OFFLINE MODE</span>
+                </div>
+                <select class="bg-gray-800 text-white text-sm rounded px-2 py-1 border border-gray-700">
+                    <option>English</option>
+                    <option>Assamese</option>
+                    <option>Bengali</option>
+                    <option>Meitei</option>
+                    <option>Khasi</option>
+                    <option>Mizo</option>
+                </select>
+                <button onclick="window.location.href='index.html'" class="text-sm bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-lg">Exit Demo</button>
+            </div>
+        </header>
+
+        <!-- View: Dashboard -->
+        <div id="view-dashboard" class="view-section active">
+            <h2 class="text-2xl font-bold mb-4">Patient Overview</h2>
+            <div class="glass p-6 rounded-2xl mb-6 border-l-4 border-teal-500 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-bold">Demo Patient</h3>
+                    <p class="text-gray-400">Patient ID: MED-001</p>
+                </div>
+                <button onclick="nav('questionnaire')" class="bg-teal-500 hover:bg-teal-600 text-black font-bold py-3 px-6 rounded-xl shadow-lg">Start Screening</button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="glass p-6 rounded-xl">
+                    <h4 class="font-bold text-gray-300 mb-2">OA Screening Status</h4>
+                    <p class="text-yellow-400">○ Not completed</p>
+                </div>
+                <div class="glass p-6 rounded-xl">
+                    <h4 class="font-bold text-gray-300 mb-2">Risk Assessment</h4>
+                    <p class="text-gray-500">—</p>
+                </div>
+                <div class="glass p-6 rounded-xl cursor-pointer hover:bg-gray-800" onclick="nav('rehab')">
+                    <h4 class="font-bold text-gray-300 mb-2">Rehabilitation</h4>
+                    <p class="text-teal-400">Available (Powered by MEDIVA)</p>
+                </div>
+                <div class="glass p-6 rounded-xl cursor-pointer hover:bg-gray-800" onclick="nav('progress')">
+                    <h4 class="font-bold text-gray-300 mb-2">Progress</h4>
+                    <p class="text-gray-500">No baseline yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Questionnaire -->
+        <div id="view-questionnaire" class="view-section">
+            <h2 class="text-2xl font-bold mb-4">Patient Screening Questionnaire</h2>
+            <div class="glass p-6 rounded-2xl max-w-2xl mx-auto">
+                <p class="text-gray-400 mb-4 italic">Note: These are screening/risk factors, not a diagnostic test.</p>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm mb-1">Age</label><input type="number" value="58" class="w-full bg-gray-800 p-2 rounded"></div>
+                        <div><label class="block text-sm mb-1">Sex</label><select class="w-full bg-gray-800 p-2 rounded"><option>Female</option><option>Male</option></select></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><label class="block text-sm mb-1">BMI</label><input type="number" value="28.5" class="w-full bg-gray-800 p-2 rounded"></div>
+                        <div><label class="block text-sm mb-1">Previous knee injury</label><select class="w-full bg-gray-800 p-2 rounded"><option>Yes</option><option>No</option></select></div>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Knee pain</label>
+                        <select class="w-full bg-gray-800 p-2 rounded"><option>Moderate</option><option>None</option><option>Mild</option><option>Severe</option></select>
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-1">Difficulty</label>
+                        <select class="w-full bg-gray-800 p-2 rounded" multiple><option selected>Walking</option><option selected>Standing from a chair</option><option>Climbing stairs</option><option>Squatting</option></select>
+                    </div>
+                </div>
+                <button onclick="nav('sts')" class="mt-6 w-full bg-teal-500 hover:bg-teal-600 text-black font-bold py-3 px-6 rounded-xl">Continue to Movement Screening</button>
+            </div>
+        </div>
+
+        <!-- View: 5x Sit to Stand -->
+        <div id="view-sts" class="view-section">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">5× SIT-TO-STAND</h2>
+                <button onclick="nav('walk')" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">Skip / Next Test</button>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-6">
+                <div class="glass p-6 rounded-xl">
+                    <h3 class="text-lg font-bold text-teal-400 mb-2">Instructions</h3>
+                    <ul class="text-gray-300 space-y-2 mb-6">
+                        <li>• Sit on a stable chair.</li>
+                        <li>• Keep your full body visible.</li>
+                        <li>• Stand up and sit down naturally.</li>
+                        <li>• Complete 5 repetitions.</li>
+                    </ul>
+                    
+                    <h3 class="text-lg font-bold text-cyan-400 mb-2">Prototype Indicators</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Repetitions</span><p id="sts-reps" class="text-2xl font-bold">0 / 5</p></div>
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Knee ROM</span><p class="text-2xl font-bold text-yellow-400">82°</p></div>
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Movement Time</span><p class="text-xl font-bold">-- s</p></div>
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Symmetry</span><p class="text-xl font-bold text-red-400">76%</p></div>
+                    </div>
+                    <button onclick="completeSTS()" class="mt-4 w-full bg-teal-500 text-black font-bold py-2 rounded">Simulate Completion</button>
+                </div>
+                
+                <div class="glass p-6 rounded-xl text-center">
+                    <h3 class="text-lg font-bold mb-4">Live Camera</h3>
+                    <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-gray-600 mb-4">
+                        <video id="sts-video" class="w-full h-full object-cover transform -scale-x-100" autoplay playsinline></video>
+                        <canvas id="sts-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                    <button onclick="startCamera('sts')" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">Start Camera</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: 10-Step Walk -->
+        <div id="view-walk" class="view-section">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">10-STEP WALK</h2>
+                <button onclick="nav('imu')" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">Next: Wearables</button>
+            </div>
+            
+            <div class="grid lg:grid-cols-2 gap-6">
+                <div class="glass p-6 rounded-xl">
+                    <h3 class="text-lg font-bold text-teal-400 mb-2">Instructions</h3>
+                    <ul class="text-gray-300 space-y-2 mb-6">
+                        <li>• Stand upright.</li>
+                        <li>• Walk naturally for 10 steps.</li>
+                        <li>• Keep your full body visible.</li>
+                    </ul>
+                    
+                    <h3 class="text-lg font-bold text-cyan-400 mb-2">Prototype Indicators</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Steps</span><p class="text-2xl font-bold">10 / 10</p></div>
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Duration</span><p class="text-xl font-bold">8.4 s</p></div>
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Cadence</span><p class="text-xl font-bold">71 spm</p></div>
+                        <div class="bg-gray-800 p-3 rounded text-center"><span class="text-sm text-gray-400">Trunk Sway</span><p class="text-xl font-bold text-yellow-400">Moderate</p></div>
+                    </div>
+                </div>
+                
+                <div class="glass p-6 rounded-xl text-center">
+                    <h3 class="text-lg font-bold mb-4">Live Camera</h3>
+                    <div class="relative w-full aspect-video bg-black rounded-lg overflow-hidden border border-gray-600 mb-4 flex items-center justify-center">
+                        <span class="text-gray-500">Camera simulated for Walk Test</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Wearable IMU -->
+        <div id="view-imu" class="view-section">
+            <h2 class="text-2xl font-bold mb-4">MEDIVA WEARABLE KIT</h2>
+            <div class="glass p-6 rounded-xl max-w-3xl mx-auto">
+                <div class="bg-blue-900/40 border border-blue-500/50 p-3 rounded-lg mb-6 text-center">
+                    <span class="font-bold text-blue-400">Demo Sensor Stream</span> - Hardware not connected
+                </div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-gray-800 p-4 rounded-xl text-center border-t-4 border-green-500">
+                        <h4 class="font-bold text-gray-300">L THIGH</h4>
+                        <p class="text-green-400 text-sm mb-2">● Connected</p>
+                        <p class="text-xs text-gray-400">Battery 87%</p>
+                        <p class="text-xs text-gray-400">Calibration <span class="text-green-400">✓</span></p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-xl text-center border-t-4 border-green-500">
+                        <h4 class="font-bold text-gray-300">R THIGH</h4>
+                        <p class="text-green-400 text-sm mb-2">● Connected</p>
+                        <p class="text-xs text-gray-400">Battery 91%</p>
+                        <p class="text-xs text-gray-400">Calibration <span class="text-green-400">✓</span></p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-xl text-center border-t-4 border-green-500">
+                        <h4 class="font-bold text-gray-300">L SHANK</h4>
+                        <p class="text-green-400 text-sm mb-2">● Connected</p>
+                        <p class="text-xs text-gray-400">Battery 84%</p>
+                        <p class="text-xs text-gray-400">Calibration <span class="text-green-400">✓</span></p>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-xl text-center border-t-4 border-green-500">
+                        <h4 class="font-bold text-gray-300">R SHANK</h4>
+                        <p class="text-green-400 text-sm mb-2">● Connected</p>
+                        <p class="text-xs text-gray-400">Battery 89%</p>
+                        <p class="text-xs text-gray-400">Calibration <span class="text-green-400">✓</span></p>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <p class="text-sm text-gray-400 mb-4">Smartphone acts as BLE Central for independent IMU nodes.</p>
+                    <button onclick="nav('analysis')" class="bg-teal-500 hover:bg-teal-600 text-black font-bold py-3 px-8 rounded-xl shadow-lg">Run Multimodal Analysis</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Multimodal Analysis -->
+        <div id="view-analysis" class="view-section">
+            <h2 class="text-2xl font-bold mb-6 text-center">MEDIVA AI ANALYSIS</h2>
+            
+            <div class="flex justify-center items-center mb-8">
+                <div class="bg-gray-800 p-4 rounded-lg text-center mx-2 w-32 border border-gray-600"><span class="block font-bold">PATIENT</span>Factors</div>
+                <span class="text-2xl text-gray-500">+</span>
+                <div class="bg-gray-800 p-4 rounded-lg text-center mx-2 w-32 border border-teal-600"><span class="block font-bold text-teal-400">CAMERA</span>MediaPipe</div>
+                <span class="text-2xl text-gray-500">+</span>
+                <div class="bg-gray-800 p-4 rounded-lg text-center mx-2 w-32 border border-blue-600"><span class="block font-bold text-blue-400">4× IMU</span>Sensors</div>
+            </div>
+            
+            <div class="text-center mb-8">
+                <div class="text-2xl text-gray-500 mb-2">↓</div>
+                <div class="inline-block bg-gradient-to-r from-gray-700 to-gray-800 p-4 rounded-lg border border-gray-600 font-bold tracking-widest">SENSOR FUSION</div>
+                <div class="text-2xl text-gray-500 my-2">↓</div>
+                <div class="inline-block bg-gradient-to-r from-teal-900 to-cyan-900 p-4 rounded-lg border border-teal-500 font-bold text-teal-300 shadow-[0_0_15px_rgba(20,184,166,0.3)]">MOVEMENT ANALYSIS</div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 max-w-3xl mx-auto mb-8 text-center text-sm">
+                <div class="bg-gray-800 p-2 rounded border border-green-500/30 text-green-400">Questionnaire ✓</div>
+                <div class="bg-gray-800 p-2 rounded border border-green-500/30 text-green-400">Camera ✓</div>
+                <div class="bg-gray-800 p-2 rounded border border-green-500/30 text-green-400">IMU 4/4 ✓</div>
+                <div class="bg-gray-800 p-2 rounded border border-green-500/30 text-green-400">Fusion Ready ✓</div>
+                <div class="bg-gray-800 p-2 rounded border border-green-500/30 text-green-400">Analysis Done ✓</div>
+            </div>
+            
+            <div class="text-center">
+                <p class="text-gray-400 text-sm mb-4">Demo Confidence: Camera 94% | IMU 91%</p>
+                <button onclick="nav('risk')" class="bg-gradient-to-r from-teal-500 to-cyan-500 text-black font-bold py-4 px-12 rounded-xl text-lg shadow-lg transform hover:scale-105 transition-all">Generate Risk Assessment</button>
+            </div>
+        </div>
+
+        <!-- View: Risk Result -->
+        <div id="view-risk" class="view-section">
+            <h2 class="text-2xl font-bold mb-4 text-center">MEDIVA RISK ASSESSMENT</h2>
+            
+            <div class="glass-strong p-8 rounded-2xl max-w-2xl mx-auto border-t-8 border-yellow-500 text-center mb-6 shadow-[0_0_30px_rgba(234,179,8,0.2)]">
+                <p class="text-gray-400 uppercase tracking-widest text-sm mb-2">OA-ASSOCIATED RISK MARKERS</p>
+                <h3 class="text-4xl font-black text-yellow-400 mb-6">MODERATE</h3>
+                
+                <div class="text-left bg-gray-800/50 p-6 rounded-xl space-y-4 mb-6 border border-gray-700">
+                    <div class="flex items-start"><span class="text-yellow-500 mr-3 text-xl">⚠</span><div><p class="font-bold">Movement</p><p class="text-gray-400 text-sm">Reduced knee ROM</p></div></div>
+                    <div class="flex items-start"><span class="text-yellow-500 mr-3 text-xl">⚠</span><div><p class="font-bold">Gait</p><p class="text-gray-400 text-sm">Left-right asymmetry</p></div></div>
+                    <div class="flex items-start"><span class="text-green-500 mr-3 text-xl">✓</span><div><p class="font-bold">Functional Test</p><p class="text-gray-400 text-sm">STS completed</p></div></div>
+                    <div class="flex items-start"><span class="text-yellow-500 mr-3 text-xl">⚠</span><div><p class="font-bold">Trunk Movement</p><p class="text-gray-400 text-sm">Increased compensation</p></div></div>
+                    <div class="flex items-start"><span class="text-yellow-500 mr-3 text-xl">⚠</span><div><p class="font-bold">Patient Factors</p><p class="text-gray-400 text-sm">Previous knee injury</p></div></div>
+                </div>
+                
+                <div class="mb-6 text-left">
+                    <h4 class="font-bold text-gray-300 text-sm mb-2 uppercase">Why this result? (Prototype visualization)</h4>
+                    <div class="space-y-1 text-sm text-gray-400">
+                        <div class="flex justify-between"><span>Movement indicators</span><span>45%</span></div><div class="w-full bg-gray-700 h-2 rounded"><div class="bg-teal-500 h-2 rounded" style="width: 45%"></div></div>
+                        <div class="flex justify-between mt-2"><span>Patient factors</span><span>30%</span></div><div class="w-full bg-gray-700 h-2 rounded"><div class="bg-blue-500 h-2 rounded" style="width: 30%"></div></div>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-gray-500 italic">MEDIVA is a screening and decision-support prototype, not a clinical diagnosis.</p>
+            </div>
+            
+            <div class="text-center">
+                <button onclick="nav('referral')" class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg mx-2">Clinical Referral</button>
+                <button onclick="nav('rehab')" class="bg-teal-500 hover:bg-teal-600 text-black font-bold px-6 py-3 rounded-lg mx-2">Start Rehabilitation</button>
+            </div>
+        </div>
+
+        <!-- View: Referral -->
+        <div id="view-referral" class="view-section">
+            <div class="max-w-3xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">CLINICAL REFERRAL</h2>
+                    <button onclick="nav('risk')" class="text-gray-400 hover:text-white">← Back</button>
+                </div>
+                
+                <div class="glass p-8 rounded-xl bg-white text-black shadow-2xl mb-6">
+                    <div class="flex justify-between border-b pb-4 mb-4 border-gray-300">
+                        <div>
+                            <h3 class="text-2xl font-black tracking-tight text-gray-800">MEDIVA</h3>
+                            <p class="text-xs text-gray-500 uppercase">Screening Report</p>
+                        </div>
+                        <div class="text-right text-sm">
+                            <p><strong>Patient ID:</strong> MED-001</p>
+                            <p><strong>Date:</strong> 25 Sep 2026</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-gray-800 mb-2 border-b border-gray-200 pb-1">Risk Assessment</h4>
+                        <div class="p-3 bg-yellow-50 text-yellow-800 rounded border border-yellow-200 font-bold flex justify-between">
+                            <span>Overall Risk Level</span>
+                            <span>MODERATE</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-6 mb-6 text-sm">
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-2 border-b border-gray-200 pb-1">Questionnaire Summary</h4>
+                            <ul class="text-gray-600 space-y-1">
+                                <li>Age: 58 | Female</li>
+                                <li>BMI: 28.5</li>
+                                <li>Prev. Injury: Yes</li>
+                                <li>Pain: Moderate</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 mb-2 border-b border-gray-200 pb-1">Functional Markers</h4>
+                            <ul class="text-gray-600 space-y-1">
+                                <li>Knee ROM: 82° (Reduced)</li>
+                                <li>Symmetry: 76% (Asymmetric)</li>
+                                <li>STS Time: 11.2s</li>
+                                <li>Cadence: 71 spm</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-bold text-gray-800 mb-2 border-b border-gray-200 pb-1">Recommended Next Steps</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Clinical assessment / X-Ray confirmation</li>
+                            <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Physiotherapy evaluation</li>
+                            <li class="flex items-center gap-2"><span class="text-green-600 font-bold">✓</span> Continue monitored rehabilitation</li>
+                        </ul>
+                    </div>
+                    
+                    <p class="text-xs text-center text-gray-400 mt-8">Screening aid — not a diagnosis.</p>
+                </div>
+                
+                <div class="text-center">
+                    <button class="bg-gray-700 hover:bg-gray-600 px-6 py-3 rounded-lg mx-2">Tier-2 Confirmation (Upload X-ray Demo)</button>
+                    <button onclick="nav('rehab')" class="bg-teal-500 hover:bg-teal-600 text-black font-bold px-6 py-3 rounded-lg mx-2">Start Rehabilitation</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: MEDIVA Rehab -->
+        <div id="view-rehab" class="view-section">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold">MEDIVA REHABILITATION ENGINE</h2>
+                    <p class="text-gray-400">Knee OA Risk / Rehabilitation</p>
+                </div>
+                <button onclick="nav('dashboard')" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded">Home</button>
+            </div>
+            
+            <div class="glass p-6 rounded-xl mb-6">
+                <h3 class="text-xl font-bold text-teal-400 mb-4">📋 Prescribed Exercises</h3>
+                <div class="grid gap-4">
+                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold text-lg">1. Sit-to-Stand</h4>
+                            <p class="text-gray-400 text-sm">3 sets × 10 reps</p>
+                        </div>
+                        <button onclick="startRehabEx('Sit-to-Stand')" class="bg-teal-500 text-black font-bold py-2 px-4 rounded-lg">Start</button>
+                    </div>
+                    <div class="bg-gray-800 p-4 rounded-xl border border-gray-700 flex justify-between items-center">
+                        <div>
+                            <h4 class="font-semibold text-lg">2. Seated Knee Extension</h4>
+                            <p class="text-gray-400 text-sm">2 sets × 15 reps</p>
+                        </div>
+                        <button onclick="startRehabEx('Seated Knee Extension')" class="bg-teal-500 text-black font-bold py-2 px-4 rounded-lg">Start</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rehab Exercise Interface -->
+            <div id="rehab-session" class="hidden glass p-6 rounded-xl border border-teal-500">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="rehab-ex-title" class="text-xl font-bold text-cyan-400">Exercise</h3>
+                    <button onclick="document.getElementById('rehab-session').classList.add('hidden')" class="text-gray-400">Cancel</button>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-black aspect-video rounded-lg relative overflow-hidden flex items-center justify-center border border-gray-600">
+                        <p class="text-gray-500 absolute z-10 text-sm text-center p-4">Camera and MediaPipe Tracking Active<br>(Reusing MEDIVA Engine)</p>
+                        <video id="rehab-video" class="w-full h-full object-cover opacity-50" autoplay playsinline></video>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-gray-800 p-4 rounded-lg text-center">
+                            <p class="text-gray-400 text-sm mb-1">Reps</p>
+                            <p class="text-4xl font-bold text-teal-400">0 / 10</p>
+                        </div>
+                        <div class="bg-green-900/30 border border-green-500 p-4 rounded-lg text-green-400 font-medium">
+                            ✓ Good knee alignment
+                        </div>
+                        <div class="bg-yellow-900/30 border border-yellow-500 p-4 rounded-lg text-yellow-400 font-medium text-sm">
+                            "Try to keep your torso upright."
+                        </div>
+                        <button onclick="nav('progress')" class="w-full mt-4 bg-gray-700 py-2 rounded font-bold">Finish Exercise & View Progress</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Progress -->
+        <div id="view-progress" class="view-section">
+            <h2 class="text-2xl font-bold mb-4">MEDIVA PROGRESS</h2>
+            <p class="text-gray-400 mb-6">Patient: Demo Patient <span class="ml-2 text-xs border border-gray-600 px-2 rounded">Demo patient data</span></p>
+            
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="glass p-6 rounded-xl border-l-4 border-teal-500">
+                    <h3 class="text-gray-400 text-sm mb-1 uppercase">Knee ROM</h3>
+                    <div class="flex items-end gap-3">
+                        <span class="text-3xl font-bold text-white">81°</span>
+                        <span class="text-green-400 font-bold mb-1 flex items-center">↑ Baseline: 72°</span>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-xl border-l-4 border-teal-500">
+                    <h3 class="text-gray-400 text-sm mb-1 uppercase">STS Time</h3>
+                    <div class="flex items-end gap-3">
+                        <span class="text-3xl font-bold text-white">9.6 s</span>
+                        <span class="text-green-400 font-bold mb-1 flex items-center">↓ Baseline: 11.2 s</span>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-xl border-l-4 border-cyan-500">
+                    <h3 class="text-gray-400 text-sm mb-1 uppercase">Symmetry</h3>
+                    <div class="flex items-end gap-3">
+                        <span class="text-3xl font-bold text-white">86%</span>
+                        <span class="text-green-400 font-bold mb-1 flex items-center">↑ Baseline: 74%</span>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-xl border-l-4 border-cyan-500">
+                    <h3 class="text-gray-400 text-sm mb-1 uppercase">Movement Score</h3>
+                    <div class="flex items-end gap-3">
+                        <span class="text-3xl font-bold text-white">81</span>
+                        <span class="text-green-400 font-bold mb-1 flex items-center">↑ Baseline: 62</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center bg-gray-800/50 p-6 rounded-xl border border-gray-700">
+                <h3 class="font-bold text-lg mb-2">Re-screening Pathway</h3>
+                <p class="text-gray-400 text-sm mb-4">Recommended next screening based on progress:</p>
+                <div class="inline-block bg-teal-900/40 text-teal-300 font-bold border border-teal-500 px-6 py-2 rounded-full">
+                    6 Months
+                </div>
+                <div class="mt-6">
+                    <button onclick="nav('dashboard')" class="bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded mx-2">Back to Dashboard</button>
+                    <button class="bg-teal-500 hover:bg-teal-600 text-black font-bold px-6 py-2 rounded mx-2">Schedule Re-screening</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MediaPipe dependencies for camera reuse -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    
+    <script>
+        // Navigation Router
+        function nav(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + viewId).classList.add('active');
+            window.scrollTo(0, 0);
+            cleanupCamera();
+        }
+
+        function startRehabEx(name) {
+            document.getElementById('rehab-session').classList.remove('hidden');
+            document.getElementById('rehab-ex-title').textContent = name;
+            startCamera('rehab');
+        }
+
+        // Dummy Camera/MediaPipe Integration to prove it works
+        let cameraInstance = null;
+        let pose = null;
+        
+        async function startCamera(type) {
+            const videoElId = type === 'sts' ? 'sts-video' : 'rehab-video';
+            const video = document.getElementById(videoElId);
+            if (!video) return;
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                
+                // Initialize MediaPipe Pose just like MEDIVA did
+                pose = new Pose({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}` });
+                pose.setOptions({ modelComplexity: 1, smoothLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+                pose.onResults((res) => {
+                    // Here we'd reuse the calculateAngle logic from patient-app.js
+                    // For the demo, we just simulate random reps if it's STS
+                });
+                
+                cameraInstance = new Camera(video, {
+                    onFrame: async () => { if (video.readyState >= 3) await pose.send({ image: video }); },
+                    width: 640, height: 480
+                });
+                cameraInstance.start();
+            } catch (err) {
+                console.log("Camera err: ", err);
+            }
+        }
+        
+        function cleanupCamera() {
+            if (cameraInstance) { cameraInstance.stop(); cameraInstance = null; }
+            if (pose) { pose.close(); pose = null; }
+            const videos = document.querySelectorAll('video');
+            videos.forEach(v => {
+                if(v.srcObject) {
+                    v.srcObject.getTracks().forEach(t => t.stop());
+                    v.srcObject = null;
+                }
+            });
+        }
+        
+        function completeSTS() {
+            document.getElementById('sts-reps').textContent = "5 / 5";
+            setTimeout(() => nav('walk'), 1000);
+        }
+    </script>
+</body>
+</html>

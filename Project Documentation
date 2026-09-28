@@ -1,8 +1,8 @@
-Meditask - AI Tele-Rehabilitation Prototype
-This project is a web-based prototype for Meditask, an AI-powered platform designed to revolutionize tele-rehabilitation for patients and clinicians.
+MEDIVA - AI Tele-Rehabilitation Prototype
+This project is a web-based prototype for MEDIVA, an AI-powered platform designed to revolutionize tele-rehabilitation for patients and clinicians.
 
 🎯 Goal
-The prototype demonstrates the core functionality of the Meditask platform:
+The prototype demonstrates the core functionality of the MEDIVA platform:
 
 Dual-Role Authentication: Separate login and sign-up for Patients and Doctors using Firebase Auth.
 
